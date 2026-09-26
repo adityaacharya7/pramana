@@ -1,0 +1,21 @@
+# Offline demo on one laptop:   docker compose up --build   ->  http://localhost:8080
+# PRAMANA_BUILD=demo runs the isolated synthetic demo build (role switcher,
+# its own volume). Set PRAMANA_BUILD=standard for the real application.
+services:
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      PRAMANA_BUILD: ${PRAMANA_BUILD:-demo}
+    volumes:
+      - pramana-data:/data
+  web:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+volumes:
+  pramana-data:

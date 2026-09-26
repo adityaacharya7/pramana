@@ -1,0 +1,1032 @@
+{
+  "dataset": "tri_city_v1",
+  "generator_version": "1.0.0",
+  "seed": 26189,
+  "synthetic": true,
+  "notice": "Entirely synthetic. Every person, number, account, bank and organisation is invented.",
+  "stats": {
+    "cases": 30,
+    "narratives": 40,
+    "hindi_or_hinglish_narratives": 6,
+    "accounts": 195,
+    "upi_ids": 202,
+    "phones": 107,
+    "transactions": 1512,
+    "bank_statements": 58,
+    "bank_branches": 3,
+    "bank_officials": 6,
+    "shared_identifiers": {
+      "4555065800338": [
+        "C-101",
+        "C-102"
+      ],
+      "563551302754": [
+        "C-101",
+        "C-102",
+        "C-103"
+      ],
+      "6263092463": [
+        "C-101",
+        "C-102"
+      ],
+      "6577461070": [
+        "C-101",
+        "C-102"
+      ],
+      "99759036248": [
+        "C-101",
+        "C-103"
+      ],
+      "ddemoelec.bill@synupi": [
+        "C-102",
+        "C-105",
+        "C-108",
+        "C-111",
+        "C-115",
+        "C-118",
+        "C-121",
+        "C-124",
+        "C-126",
+        "C-129"
+      ],
+      "ktestpower.bill@synupi": [
+        "C-103",
+        "C-106",
+        "C-109",
+        "C-112",
+        "C-114",
+        "C-117",
+        "C-120",
+        "C-123",
+        "C-127",
+        "C-130"
+      ],
+      "msynpower.bill@synupi": [
+        "C-101",
+        "C-104",
+        "C-107",
+        "C-110",
+        "C-113",
+        "C-116",
+        "C-119",
+        "C-122",
+        "C-125",
+        "C-128"
+      ]
+    }
+  },
+  "files": [
+    {
+      "path": "cases/C-101/bank_statement_HUB_563551302754.csv",
+      "case_id": "C-101",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "c0703535dbf2a1fed426029784202c19c1aacf5d18e789908f119689384a6251",
+      "bytes": 1666,
+      "note": "Bank response: statement of account receiving funds from M1"
+    },
+    {
+      "path": "cases/C-101/bank_statement_M1_6048957397316.csv",
+      "case_id": "C-101",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "5f9e4b7545fb3188e80b7e9cde36d6642a18e8f2a61aaaf033bb20fc66070af9",
+      "bytes": 956,
+      "note": "Bank response: statement of beneficiary account named in complaint"
+    },
+    {
+      "path": "cases/C-101/bank_statement_V1_6740454760436.csv",
+      "case_id": "C-101",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "84599a9b3aa5aacf17728e301a4273e6c59b899c955735c7b171d8f26fe34fac",
+      "bytes": 4733,
+      "note": "Victim account statement (V1)"
+    },
+    {
+      "path": "cases/C-101/cdr_P-77_6577461070.csv",
+      "case_id": "C-101",
+      "kind": "cdr",
+      "language": "en",
+      "sha256": "a17656d9f147208ad0932cd244201cf0cc3140fa51de8dd221f037746a5436f9",
+      "bytes": 2003,
+      "note": "Telecom service provider response: CDR of calling number"
+    },
+    {
+      "path": "cases/C-101/complaint_C-101_victim.txt",
+      "case_id": "C-101",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "7eb42fb2d39f9085f4bee4f248eae317f7c462a43bfc74ac00618da36430e672",
+      "bytes": 2447,
+      "demo_live_upload": true,
+      "note": "Tri-City complaint (Mumbai)"
+    },
+    {
+      "path": "cases/C-101/kyc_response_C-101.csv",
+      "case_id": "C-101",
+      "kind": "kyc_response",
+      "language": "en",
+      "sha256": "3d37adff0144e3e47d3469d039e1b86d911ed7ed4b38ac421cddc251efb5571c",
+      "bytes": 1022,
+      "note": "Bank reply to notice: account-opening details"
+    },
+    {
+      "path": "cases/C-101/seized_chat_p2p_seller.txt",
+      "case_id": "C-101",
+      "kind": "chat_log",
+      "language": "en",
+      "sha256": "1e55879477c5d33a98360ec28d997d9e7397cf1688068f033a101797dd5fee76",
+      "bytes": 1040,
+      "note": "Trade record linking HUB -> P2P payment to USDT sent to W-1"
+    },
+    {
+      "path": "cases/C-101/witness_statement_C-101_rahul_sharma.txt",
+      "case_id": "C-101",
+      "kind": "witness_statement",
+      "language": "en",
+      "sha256": "a62a196d74f7bb8b4276b70509f15902369bf042b6f9a8bc02f2093e474df6bb",
+      "bytes": 1070,
+      "note": "Witness is a different person from the M2 account holder (FX-01)"
+    },
+    {
+      "path": "cases/C-102/bank_statement_M2_4555065800338.csv",
+      "case_id": "C-102",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "92806e94fa4f515f3fe0ed06175fc486b75f7df321802098f275ada98230104d",
+      "bytes": 3171,
+      "note": "Bank response: statement of beneficiary account named in complaint"
+    },
+    {
+      "path": "cases/C-102/bank_statement_V2_87502954453.csv",
+      "case_id": "C-102",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "5bf8b952469fb4c843e36fcc6d000bae9df7988cfd67f7b1124ebb0381cc13f1",
+      "bytes": 4895,
+      "note": "Victim account statement (V2)"
+    },
+    {
+      "path": "cases/C-102/complaint_C-102_victim.txt",
+      "case_id": "C-102",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "9c60008cf365c13f077bd9b4a922e46b69bf4ad7d68a464a590da907c9ed3fa4",
+      "bytes": 1721,
+      "demo_live_upload": true,
+      "note": "Tri-City complaint (Delhi)"
+    },
+    {
+      "path": "cases/C-102/kyc_response_C-102.csv",
+      "case_id": "C-102",
+      "kind": "kyc_response",
+      "language": "en",
+      "sha256": "df6fd035268b97ddcc4fe4fe1cc765dc67dc96bb20b50f13174c68e862d75e02",
+      "bytes": 642,
+      "note": "Bank reply to notice: account-opening details"
+    },
+    {
+      "path": "cases/C-102/supplementary_statement_C-102.txt",
+      "case_id": "C-102",
+      "kind": "supplementary_statement",
+      "language": "en",
+      "sha256": "8677f5dfb7866129796e0e5141d13196d9176ba8a316ed3b95812294c9db79a9",
+      "bytes": 664
+    },
+    {
+      "path": "cases/C-103/bank_statement_M3_99759036248.csv",
+      "case_id": "C-103",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "3222d4ec7b4aa6e3c80d289faade4e211d746163865ec447245d6ad47942036d",
+      "bytes": 826,
+      "note": "Bank response: statement of beneficiary account named in complaint"
+    },
+    {
+      "path": "cases/C-103/bank_statement_V3_4007140334880.csv",
+      "case_id": "C-103",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "80436a075d00b3d59882934b09f59ec964229a3a215e591346326e591723c3b2",
+      "bytes": 5365,
+      "note": "Victim account statement (V3)"
+    },
+    {
+      "path": "cases/C-103/complaint_C-103_victim.txt",
+      "case_id": "C-103",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "64d01c9d2590f36fc3773d4a9462813860dc86ebc4a366873344429769e9b619",
+      "bytes": 1793,
+      "demo_live_upload": true,
+      "note": "Tri-City complaint (Bengaluru); no identifier shared with C-101/C-102"
+    },
+    {
+      "path": "cases/C-103/kyc_response_C-103.csv",
+      "case_id": "C-103",
+      "kind": "kyc_response",
+      "language": "en",
+      "sha256": "3061c347d2f7500017dee90c5618273851a5eac22fd9512acfdc4f1799f3d57c",
+      "bytes": 641,
+      "note": "Bank reply to notice: account-opening details"
+    },
+    {
+      "path": "cases/C-103/supplementary_statement_C-103.txt",
+      "case_id": "C-103",
+      "kind": "supplementary_statement",
+      "language": "en",
+      "sha256": "747e13ac2982eeba0fae6c5d84d4bbd9dadeab4182d93d7d4894090a92b2cde9",
+      "bytes": 658
+    },
+    {
+      "path": "cases/C-104/bank_statement_67336575910.csv",
+      "case_id": "C-104",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "8bb1aa3d3d90754cea76072473ad3d46adcb1b89d123cd9004d630774889edef",
+      "bytes": 2784
+    },
+    {
+      "path": "cases/C-104/bank_statement_victim_70344619639.csv",
+      "case_id": "C-104",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "fb020ccfd38809f9d6abf1aaa406869a5d7ae101a50337bf8b5f19a10c20a43e",
+      "bytes": 6283,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-104/complaint_C-104.txt",
+      "case_id": "C-104",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "b235e54cefba242a855725b8edd5a9b5418d1e05b2a2cc612acca90b348ff0f8",
+      "bytes": 1610
+    },
+    {
+      "path": "cases/C-104/kyc_response_C-104.csv",
+      "case_id": "C-104",
+      "kind": "kyc_response",
+      "language": "en",
+      "sha256": "8251c737b30eba0677fa647eb4b561c09be245283e55a518204b6020a72c898a",
+      "bytes": 618,
+      "note": "Bank reply to notice: account-opening details"
+    },
+    {
+      "path": "cases/C-104/supplementary_statement_C-104.txt",
+      "case_id": "C-104",
+      "kind": "supplementary_statement",
+      "language": "en",
+      "sha256": "76dfeae63d7d6952973e065d3b2a438ce15b2fda7905bdff12c59ad713101872",
+      "bytes": 438
+    },
+    {
+      "path": "cases/C-105/bank_statement_35527699442279.csv",
+      "case_id": "C-105",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "7bab7490003d6be58b5476f54d2b4fc474bb9cdacf45d152802c90961bb329d2",
+      "bytes": 2823
+    },
+    {
+      "path": "cases/C-105/bank_statement_victim_258840137802.csv",
+      "case_id": "C-105",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "bd7846ffa47a2c9b15d92be541fd3298e95c39fdae56454ad8ca18cac0421083",
+      "bytes": 6672,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-105/complaint_C-105.txt",
+      "case_id": "C-105",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "873e7e5afcb7354df00a9145b918780d1e80bda3369cd8ba69676d28165aec46",
+      "bytes": 1484
+    },
+    {
+      "path": "cases/C-105/kyc_response_C-105.csv",
+      "case_id": "C-105",
+      "kind": "kyc_response",
+      "language": "en",
+      "sha256": "29059904cc51bd42ce575e77974811fc063cd5b7e382e178e7d85655403b0c10",
+      "bytes": 637,
+      "note": "Bank reply to notice: account-opening details"
+    },
+    {
+      "path": "cases/C-105/supplementary_statement_C-105.txt",
+      "case_id": "C-105",
+      "kind": "supplementary_statement",
+      "language": "en",
+      "sha256": "511de436c56b3a7b3aea3e144f9f1cc4652f1e324c81b1d007256cb3b5ab710a",
+      "bytes": 439
+    },
+    {
+      "path": "cases/C-106/bank_statement_997036482880.csv",
+      "case_id": "C-106",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "cbb0577c955a65dd0e5e822200670c53c729e9ded4ccd48454b22fadd3f57ac9",
+      "bytes": 2578
+    },
+    {
+      "path": "cases/C-106/bank_statement_victim_75717589380.csv",
+      "case_id": "C-106",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "9fb4a55b151e9c9ba8aa00d1e4ce6d1c969bfb9c1ac619b0435fa60ba76438ad",
+      "bytes": 5868,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-106/complaint_C-106.txt",
+      "case_id": "C-106",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "5486817d19392b965f69ae80c2ce010dc9f8fcaa1f0c788f2bed48dd39cf9d0f",
+      "bytes": 1240
+    },
+    {
+      "path": "cases/C-107/bank_statement_9716796581406.csv",
+      "case_id": "C-107",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "f8bddb9861f5a5ad96dd7251ea481dfb0caedff0e6e738d4c603b8ba2e8e2375",
+      "bytes": 3086
+    },
+    {
+      "path": "cases/C-107/bank_statement_9716796581406_copy_received_by_email.csv",
+      "case_id": "C-107",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "f8bddb9861f5a5ad96dd7251ea481dfb0caedff0e6e738d4c603b8ba2e8e2375",
+      "bytes": 3086,
+      "note": "Byte-identical copy of the statement above"
+    },
+    {
+      "path": "cases/C-107/bank_statement_victim_530397481796.csv",
+      "case_id": "C-107",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "8398b23dc1b53acfeea470695f66520b4790f5cea79f96ad206186a5d137255f",
+      "bytes": 6774,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-107/complaint_C-107.txt",
+      "case_id": "C-107",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "067e700990da3d6558ab6a06267cd442db2f075bae909b13d7092a058039229c",
+      "bytes": 1433
+    },
+    {
+      "path": "cases/C-107/kyc_response_C-107.csv",
+      "case_id": "C-107",
+      "kind": "kyc_response",
+      "language": "en",
+      "sha256": "2355c50f009744df524ead3f9e210a2d3d5f38328c66ea0d3993854e5ba6cbfd",
+      "bytes": 624,
+      "note": "Bank reply to notice: account-opening details"
+    },
+    {
+      "path": "cases/C-108/bank_statement_85349168542538.csv",
+      "case_id": "C-108",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "f69e921f40c490bea38200fa11a6b44900babe520892db2a33c66b78e626fbe0",
+      "bytes": 1702
+    },
+    {
+      "path": "cases/C-108/bank_statement_victim_97270044855045.csv",
+      "case_id": "C-108",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "5c20cc3e7b10f815576ae920d9dbedd674cd533821089f37f84f303413d1c9b7",
+      "bytes": 6840,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-108/complaint_C-108.txt",
+      "case_id": "C-108",
+      "kind": "complaint",
+      "language": "hinglish",
+      "sha256": "f314b5938caf6e07a48ead6332c057675fabb8bea97c36bb7fd9a34d18a93291",
+      "bytes": 979
+    },
+    {
+      "path": "cases/C-108/kyc_response_C-108.csv",
+      "case_id": "C-108",
+      "kind": "kyc_response",
+      "language": "en",
+      "sha256": "62a6c4ce00d73e947d5bad0d5e16b0b4de61f586acb13462fcb0e6393d4a3d89",
+      "bytes": 615,
+      "note": "Bank reply to notice: account-opening details"
+    },
+    {
+      "path": "cases/C-109/bank_statement_victim_71209257141035.csv",
+      "case_id": "C-109",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "992357e8087cec4e8001d953899fb3079c50dadb0ec32e936d4c9422e48056b3",
+      "bytes": 6883,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-109/complaint_C-109.txt",
+      "case_id": "C-109",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "1cfb4428278fc80220743f7b5ed80a0bd7197adbb01c8dce4bcd7d05856f7b78",
+      "bytes": 1110
+    },
+    {
+      "path": "cases/C-110/bank_statement_120522953684.csv",
+      "case_id": "C-110",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "e325a212450fcf9c9c8764bfef256c6ae11639e2378220663e34d564bded5fce",
+      "bytes": 2417
+    },
+    {
+      "path": "cases/C-110/bank_statement_victim_4971875451203.csv",
+      "case_id": "C-110",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "9919532348202f9d428621ad6088ed141f5c15cb6d4c13811ef1a24aa0fc2de5",
+      "bytes": 6259,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-110/complaint_C-110.txt",
+      "case_id": "C-110",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "1906d86a3af8ea62a8f5cf34448910c12d947f6dcba57fe062a8497b2f241e93",
+      "bytes": 984
+    },
+    {
+      "path": "cases/C-110/kyc_response_C-110.csv",
+      "case_id": "C-110",
+      "kind": "kyc_response",
+      "language": "en",
+      "sha256": "504b2ec92486c8c197305af249ef64a860d8f7bd36a3b3d84bea75da8d52d48e",
+      "bytes": 617,
+      "note": "Bank reply to notice: account-opening details"
+    },
+    {
+      "path": "cases/C-110/supplementary_statement_C-110.txt",
+      "case_id": "C-110",
+      "kind": "supplementary_statement",
+      "language": "en",
+      "sha256": "10c6a43b3faa0cda06bbd12b0dd5003c93266c7ecfda7b13af021527ff014f29",
+      "bytes": 448
+    },
+    {
+      "path": "cases/C-111/bank_statement_6415585145797_aug10-31.csv",
+      "case_id": "C-111",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "8c6a51522b513f0b1798edeac5ad7413dab4c57722891a6fb918668b25e36c35",
+      "bytes": 249
+    },
+    {
+      "path": "cases/C-111/bank_statement_6415585145797_jul.csv",
+      "case_id": "C-111",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "abc0f1855d55132bf3340e56bc497f813fb83dfa86034b5a0c14e8fdb8b20a06",
+      "bytes": 1448
+    },
+    {
+      "path": "cases/C-111/bank_statement_victim_17560426069.csv",
+      "case_id": "C-111",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "e53b963eaf2781676955cc8da7159c82bcb017d908069222e3bdb60884262184",
+      "bytes": 5749,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-111/complaint_C-111.txt",
+      "case_id": "C-111",
+      "kind": "complaint",
+      "language": "hinglish",
+      "sha256": "312ba970138060a2c9efddfb0cb786896d43164b1276b3235202b84517973249",
+      "bytes": 1099
+    },
+    {
+      "path": "cases/C-111/kyc_response_C-111.csv",
+      "case_id": "C-111",
+      "kind": "kyc_response",
+      "language": "en",
+      "sha256": "98b793b45109e2d4babede7422232712d69e94bed042b61890d04545a69b07f5",
+      "bytes": 624,
+      "note": "Bank reply to notice: account-opening details"
+    },
+    {
+      "path": "cases/C-112/bank_statement_1813763248128.csv",
+      "case_id": "C-112",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "c78134ec1be4fb322de1b26e7049e20df46d7e672cfbaac444b219ec97aac435",
+      "bytes": 2423
+    },
+    {
+      "path": "cases/C-112/bank_statement_victim_9961712185362.csv",
+      "case_id": "C-112",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "a58e5149a032dd840aff0cd6fe2bf7c44c1fe85667192a076261be566c472755",
+      "bytes": 6521,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-112/complaint_C-112.txt",
+      "case_id": "C-112",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "4a686a2acaeb7dbdd46c4ccfbbb9feaee0ae910ebeb78852c1a6e23adf62880c",
+      "bytes": 1500
+    },
+    {
+      "path": "cases/C-112/kyc_response_C-112.csv",
+      "case_id": "C-112",
+      "kind": "kyc_response",
+      "language": "en",
+      "sha256": "1907c50336b54f4abb218d041c2d45146acfb2d6bf9f6c72fadbf5009166c591",
+      "bytes": 632,
+      "note": "Bank reply to notice: account-opening details"
+    },
+    {
+      "path": "cases/C-112/supplementary_statement_C-112.txt",
+      "case_id": "C-112",
+      "kind": "supplementary_statement",
+      "language": "en",
+      "sha256": "8b1f7dae5bd92a2158de40e9da1cbe8539f28455c6ff017f356a9e1cb1e38b36",
+      "bytes": 454
+    },
+    {
+      "path": "cases/C-113/bank_statement_52636821805.csv",
+      "case_id": "C-113",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "12e7e29eb8798d1db201e89bf234b98b10bf17ee984d7969f7acd8452e2bd6b3",
+      "bytes": 3016
+    },
+    {
+      "path": "cases/C-113/bank_statement_victim_3238484133755.csv",
+      "case_id": "C-113",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "41d2b5ba531e06a61eb2a18ed35649e20cd9141986f3948c9c6b06d2a73ec3cc",
+      "bytes": 6236,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-113/complaint_C-113.txt",
+      "case_id": "C-113",
+      "kind": "complaint",
+      "language": "hi",
+      "sha256": "e126cc85509a22d24dac19d2cfb28600d9135f47c0081eca7b06d3542a37e460",
+      "bytes": 1932
+    },
+    {
+      "path": "cases/C-114/bank_statement_845374039352.csv",
+      "case_id": "C-114",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "a8967667cea8102927b8a9259042852572de0c12870e902e488c2ab6c727740d",
+      "bytes": 2764
+    },
+    {
+      "path": "cases/C-114/bank_statement_victim_95547623020.csv",
+      "case_id": "C-114",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "deae290bad67accd69c2542a88ed783a2b8cb8b929dabe83ef28b36ea2994f64",
+      "bytes": 5308,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-114/complaint_C-114.txt",
+      "case_id": "C-114",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "fd17ff8d0fe1387ed5092f11e39a1f88f8fdf07961e24c2b0993e043530d693a",
+      "bytes": 1643
+    },
+    {
+      "path": "cases/C-114/kyc_response_C-114.csv",
+      "case_id": "C-114",
+      "kind": "kyc_response",
+      "language": "en",
+      "sha256": "df467cd2bc72e4425d4c905b28c74b539a6cd1036c39c5571e510ddd24ce300c",
+      "bytes": 618,
+      "note": "Bank reply to notice: account-opening details"
+    },
+    {
+      "path": "cases/C-114/supplementary_statement_C-114.txt",
+      "case_id": "C-114",
+      "kind": "supplementary_statement",
+      "language": "en",
+      "sha256": "28fa9c456538baa7188df5f275b296328461dbdcef921cff45d6004710dbc212",
+      "bytes": 452
+    },
+    {
+      "path": "cases/C-115/bank_statement_victim_3947006915494.csv",
+      "case_id": "C-115",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "4f40a9d32292bf511bda4d956e83294e00450d906294af6d90a695ded02f9d42",
+      "bytes": 6221,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-115/complaint_C-115.txt",
+      "case_id": "C-115",
+      "kind": "complaint",
+      "language": "hi",
+      "sha256": "3db3d8f2ff1b2fe91c13f9a15d1624f7722360e535a4bb561b8cdbc6600705c6",
+      "bytes": 1694
+    },
+    {
+      "path": "cases/C-116/bank_statement_496806923437.csv",
+      "case_id": "C-116",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "ee4d449bd55d574c43e1f87b0a644cd6f0c41e94addd0083b7577579ff27d4e4",
+      "bytes": 2496
+    },
+    {
+      "path": "cases/C-116/bank_statement_victim_72681781809286.csv",
+      "case_id": "C-116",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "3c0d32d8493b91de15dba0cc171b361bf73b25e0b12be78755459b3fc5c16c82",
+      "bytes": 6483,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-116/complaint_C-116.txt",
+      "case_id": "C-116",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "be1ce14545964aad16224b61fe62d43c602f87e32868711a48a440fad804cc4a",
+      "bytes": 1193
+    },
+    {
+      "path": "cases/C-117/bank_statement_2099344976085.csv",
+      "case_id": "C-117",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "7ae81d4e6d14c82271ae16db9f656c804ca7fa906408f3439f0740ce73041925",
+      "bytes": 2044
+    },
+    {
+      "path": "cases/C-117/bank_statement_victim_9958928197370.csv",
+      "case_id": "C-117",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "acbffc2713e76c5d796464b66299e2e21969430d3c3fdb217e3e4b3ea5b9ff9d",
+      "bytes": 7591,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-117/complaint_C-117.txt",
+      "case_id": "C-117",
+      "kind": "complaint",
+      "language": "hi",
+      "sha256": "7eb41fdb5aabdb84b2e038d435e5c07763cdba2e76303946e697fbc37f691b31",
+      "bytes": 1889
+    },
+    {
+      "path": "cases/C-117/kyc_response_C-117.csv",
+      "case_id": "C-117",
+      "kind": "kyc_response",
+      "language": "en",
+      "sha256": "418ef205d6b46038f603e38dfb59314ccf0a12bae6f24a3326399e95f62c4e3a",
+      "bytes": 622,
+      "note": "Bank reply to notice: account-opening details"
+    },
+    {
+      "path": "cases/C-118/bank_statement_victim_2377410201193.csv",
+      "case_id": "C-118",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "67e6507f36183925bbb72333ff65e6995e59591a2b0d34ef2e29514aa805d63e",
+      "bytes": 6656,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-118/complaint_C-118.txt",
+      "case_id": "C-118",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "e2ff69c5f567aab02dc2a5f4175f6b815743e06a381a9fded57c895b126ae9fd",
+      "bytes": 1130
+    },
+    {
+      "path": "cases/C-119/bank_statement_3475449909541.csv",
+      "case_id": "C-119",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "5233a3774156e7b23b5d5272730156ed5dd36b1c01688762fad4482b1db57620",
+      "bytes": 2911
+    },
+    {
+      "path": "cases/C-119/bank_statement_victim_71589251041.csv",
+      "case_id": "C-119",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "cc9b0ab93993c25927059ae09245e4e40588ac0773d7cfd4cff44f5d033a5749",
+      "bytes": 6287,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-119/complaint_C-119.txt",
+      "case_id": "C-119",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "38c8a30842585ebc941d21cb4c54355eec3d6b080771dcec3152e0df0944c684",
+      "bytes": 1388
+    },
+    {
+      "path": "cases/C-119/supplementary_statement_C-119.txt",
+      "case_id": "C-119",
+      "kind": "supplementary_statement",
+      "language": "en",
+      "sha256": "1e3ead7b9fd256ba605035ddd48b53260b3ea5b7d34d167d23b1d92883e5eef1",
+      "bytes": 444
+    },
+    {
+      "path": "cases/C-120/bank_statement_6221513931854.csv",
+      "case_id": "C-120",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "b45a566325ec5b5f739219127f4c0b15ee738bec26bd480d2d9954c01a995486",
+      "bytes": 2229
+    },
+    {
+      "path": "cases/C-120/bank_statement_victim_591906888626.csv",
+      "case_id": "C-120",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "078d110ddcd9bcb73ea0afe1001f8d21f4ddc384a71f4423965127739578fb0e",
+      "bytes": 5923,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-120/complaint_C-120.txt",
+      "case_id": "C-120",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "38b8d48edf3b2696f118bbe3307a443fb4907c7ba6f2b69872dfb9102e2a69cc",
+      "bytes": 1455
+    },
+    {
+      "path": "cases/C-121/bank_statement_96029949819.csv",
+      "case_id": "C-121",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "1459b2b10edfb0c45715c9cb295208927ea82fa8b3d161c62488601b7ea2ec04",
+      "bytes": 2240
+    },
+    {
+      "path": "cases/C-121/bank_statement_victim_67343349434888.csv",
+      "case_id": "C-121",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "eca58a5885120cd4d4292e91868eabd0f5a72c4d0d30f9b9ade17dfcd0b8327b",
+      "bytes": 6638,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-121/complaint_C-121.txt",
+      "case_id": "C-121",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "c9656e9d329c20fe30ac3591453abe673593da10d30b0b3c9bfb86e210a29088",
+      "bytes": 990
+    },
+    {
+      "path": "cases/C-122/bank_statement_4660840692557.csv",
+      "case_id": "C-122",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "3a0d21793cabbf0ae7c9b50a6225395a7e02af6d8786139aceaf55b5321b6c3a",
+      "bytes": 866
+    },
+    {
+      "path": "cases/C-122/bank_statement_victim_17298991237.csv",
+      "case_id": "C-122",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "e3dd5ceab9e3e8c566bdedad9ed2547373dd0d153e3f1af8eb3d18f70fe4dc6e",
+      "bytes": 6135,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-122/complaint_C-122.txt",
+      "case_id": "C-122",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "571ffa8d811d4a784feddeca538f386bbabd5ca2015ebac9c494ed8389c8e8d7",
+      "bytes": 1092
+    },
+    {
+      "path": "cases/C-123/bank_statement_victim_18897330003922.csv",
+      "case_id": "C-123",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "08b8d1a313f620eb84e374d39bd387c93659f5fd7f0c474e5ee829b577651cb2",
+      "bytes": 6685,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-123/complaint_C-123.txt",
+      "case_id": "C-123",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "b1bf6642c85b0c88d5725548efe36b1103927ec9ea67abe1931905c7e15a4bf3",
+      "bytes": 1209
+    },
+    {
+      "path": "cases/C-124/bank_statement_629865586608.csv",
+      "case_id": "C-124",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "fb641537554090e7cf9c246b98097f31b2c286f6f8644522333c7acf986df996",
+      "bytes": 2461
+    },
+    {
+      "path": "cases/C-124/bank_statement_victim_744459938310.csv",
+      "case_id": "C-124",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "511db332048afb7b0839013150d945293c6fb7077fd6aa691d52d42d21e866d7",
+      "bytes": 6898,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-124/complaint_C-124.txt",
+      "case_id": "C-124",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "472cd26cc5677f5cfc41197868a684b81b84b42f73e965a8a78fbf4da97079bf",
+      "bytes": 1160
+    },
+    {
+      "path": "cases/C-125/bank_statement_968130796957.csv",
+      "case_id": "C-125",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "aca851d727d04a90ec4da2580fec14f444a82e8fefce002998e5987bcb47d06f",
+      "bytes": 2342
+    },
+    {
+      "path": "cases/C-125/bank_statement_victim_33319278987.csv",
+      "case_id": "C-125",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "59bb4936cbc25cbc11150f74ef280b6760f05638e43f5980507905fcb05314c2",
+      "bytes": 5889,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-125/complaint_C-125.txt",
+      "case_id": "C-125",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "e99b6be288a49c417110fac4626321576c9c0af55a16c735ae5c8b96b8f23725",
+      "bytes": 1051
+    },
+    {
+      "path": "cases/C-126/bank_statement_122438903878.csv",
+      "case_id": "C-126",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "8d6a094ff27bc8344c4d61742709e453e9514a6ffa8a052874d1be860fa06814",
+      "bytes": 2170
+    },
+    {
+      "path": "cases/C-126/bank_statement_victim_832221598422.csv",
+      "case_id": "C-126",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "30c016e91001dc3cb06f575e6779adccba2dd7cec4bd388e97341f9449baa468",
+      "bytes": 6392,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-126/complaint_C-126.txt",
+      "case_id": "C-126",
+      "kind": "complaint",
+      "language": "hinglish",
+      "sha256": "d96ea775946accd918988f1ea595ce74acadb484110f100aac9d0a1dd0b366b4",
+      "bytes": 1224
+    },
+    {
+      "path": "cases/C-127/bank_statement_68932575253.csv",
+      "case_id": "C-127",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "93dd197fa726da55e572584a3085196ee1842bd3c1c65dc88b51b175a88518f3",
+      "bytes": 2641
+    },
+    {
+      "path": "cases/C-127/bank_statement_victim_5542359714107.csv",
+      "case_id": "C-127",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "872bcac14693faa9ee2e94f688d225d83bd10d13560cc15923e38fcf7b3d6e0a",
+      "bytes": 5981,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-127/complaint_C-127.txt",
+      "case_id": "C-127",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "ff923458746de7181985e46e1c5ffe6664adb8dd92b5c34fca742bc81d4c296f",
+      "bytes": 978
+    },
+    {
+      "path": "cases/C-128/bank_statement_victim_8926409743497.csv",
+      "case_id": "C-128",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "1855394c446c47e5a7ca186dd4e3ca268f6bafa8aa921feb5653f8f050d2f519",
+      "bytes": 5613,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-128/complaint_C-128.txt",
+      "case_id": "C-128",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "4895a88744d84a533427d5080cf4322f570206abc0286d0537fd64a9a01cad97",
+      "bytes": 982
+    },
+    {
+      "path": "cases/C-129/bank_statement_4899442373033.csv",
+      "case_id": "C-129",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "9cdbd705f08c9a7bf14ae422b4756ddf2d52b8c10d56b9490f95ce79867fb7ce",
+      "bytes": 2271
+    },
+    {
+      "path": "cases/C-129/bank_statement_victim_82557171984.csv",
+      "case_id": "C-129",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "1dc0d3d528c6d9c59b29705a85d7ed2cbe2e4288635b5c29d3f5e3f3b5d687fb",
+      "bytes": 7182,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-129/complaint_C-129.txt",
+      "case_id": "C-129",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "baeee16cd9d0c768d380348d03af67d9cda283650b0e8d8709ed648c28592f81",
+      "bytes": 1686
+    },
+    {
+      "path": "cases/C-129/supplementary_statement_C-129.txt",
+      "case_id": "C-129",
+      "kind": "supplementary_statement",
+      "language": "en",
+      "sha256": "8fad223ec1bc77a02b8e82c40ea463413a1b818be6501384692f0b52e4674e78",
+      "bytes": 375
+    },
+    {
+      "path": "cases/C-130/bank_statement_944550274842.csv",
+      "case_id": "C-130",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "fce0965126d9ad07360825e4e311134693ebd88a0c669e69ce0969840046abdf",
+      "bytes": 2068
+    },
+    {
+      "path": "cases/C-130/bank_statement_victim_261364521881.csv",
+      "case_id": "C-130",
+      "kind": "bank_statement",
+      "language": "en",
+      "sha256": "dfd2682b808b8b7956ee7e0e74daf2bb9e1364a70f0ea4eefb431a199a186667",
+      "bytes": 6366,
+      "note": "Victim account statement"
+    },
+    {
+      "path": "cases/C-130/complaint_C-130.txt",
+      "case_id": "C-130",
+      "kind": "complaint",
+      "language": "en",
+      "sha256": "fe12e811e0dcfed4ee4257b13b4dc30e16c47290c52b5ea08718902ecb7f34a8",
+      "bytes": 1342
+    }
+  ]
+}

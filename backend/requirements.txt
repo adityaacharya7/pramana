@@ -1,0 +1,14 @@
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30
+sqlalchemy>=2.0,<3.0
+pydantic>=2.7,<3.0
+python-multipart>=0.0.9
+pyotp>=2.9
+bcrypt>=4.1
+PyJWT>=2.8
+networkx>=3.2
+pypdf>=4
+psycopg[binary]>=3.1
+spacy>=3.7,<4
+# English NER model (installed separately so the demo image can bake it in):
+#   python -m spacy download en_core_web_sm

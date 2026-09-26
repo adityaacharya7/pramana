@@ -1,0 +1,17 @@
+# runtime data (databases, sealed evidence, secrets) — never committed
+var/
+backend/.pytest_tmp/
+backend/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# frontend
+frontend/node_modules/
+frontend/dist/
+
+# editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

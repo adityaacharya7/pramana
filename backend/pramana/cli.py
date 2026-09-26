@@ -1,0 +1,180 @@
+"""Operator commands.
+
+    python -m pramana.cli serve [--demo] [--port 8000]
+    python -m pramana.cli demo-reset [--preload-all] [--yes]
+    python -m pramana.cli init-db [--demo]
+    python -m pramana.cli create-user --username u --name "Full Name" --role IO --unit MUM-CYB
+    python -m pramana.cli create-case --id C-900 --fir-no 0001/2026 --unit MUM-CYB --title "..."
+    python -m pramana.cli add-member --case C-900 --username u [--access owner]
+    python -m pramana.cli verify-ledger [--demo]
+
+User and case administration belongs to the Admin role (P1); until that UI
+exists, these commands are how a standard build gets its first accounts.
+
+Against a hosted database (e.g. the Vercel deployment's Postgres), set
+PRAMANA_DB_URL to its URL and run the same commands from your machine.
+"""
+from __future__ import annotations
+
+import argparse
+import getpass
+import json
+import shutil
+import sys
+
+from sqlalchemy import select
+
+from . import ledger
+from .config import load_settings
+from .db import utcnow_iso
+from .main import create_app
+from .models import Case, CaseMember, User
+from .permissions import Role
+from .security import hash_password, new_totp_secret, totp_uri
+
+ADMIN_ACTOR = "cli:operator"
+
+
+def _db(build: str):
+    app = create_app(load_settings(build))
+    return app, app.state.sessionmaker()
+
+
+def cmd_serve(args):
+    import uvicorn
+    app = create_app(load_settings("demo" if args.demo else "standard"))
+    uvicorn.run(app, host=args.host, port=args.port)
+
+
+def cmd_demo_reset(args):
+    from sqlalchemy import inspect, select
+
+    from .db import Base, check_deployment, dispose_engine, make_engine, make_sessionmaker
+    from .models import Deployment
+    from .seed import seed_demo
+
+    settings = load_settings("demo")
+    if settings.is_sqlite:
+        # Only the demo build's own directory is ever removed.
+        if settings.data_dir.name != "demo":
+            sys.exit("refusing: unexpected demo data directory")
+        shutil.rmtree(settings.data_dir, ignore_errors=True)
+        if (settings.data_dir / "pramana_demo.db").exists():
+            sys.exit("Could not remove the demo database. Stop the demo server first, then retry.")
+        settings = load_settings("demo")
+    else:
+        # A hosted database: wipe it only if it is empty or already a demo
+        # database, and only when asked explicitly.
+        engine = make_engine(settings.db_url)
+        if inspect(engine).has_table("deployment"):
+            with make_sessionmaker(engine)() as db:
+                row = db.scalar(select(Deployment))
+            if row is not None and row.build != "demo":
+                sys.exit(f"refusing: this database belongs to the {row.build!r} build.")
+        if not args.yes:
+            sys.exit(f"This drops every PRAMANA table in {engine.url.render_as_string(hide_password=True)} "
+                     "and reseeds it with synthetic data. Re-run with --yes to proceed.")
+        Base.metadata.drop_all(engine)
+        dispose_engine(settings.db_url)
+    engine = make_engine(settings.db_url)
+    Base.metadata.create_all(engine)
+    with make_sessionmaker(engine)() as db:
+        check_deployment(db, "demo")
+        summary = seed_demo(db, settings, preload_all=args.preload_all)
+    print(json.dumps(summary, indent=2))
+
+
+def cmd_init_db(args):
+    """Create the schema and claim the database for a build. Needed once for a
+    hosted database, since serverless instances never create schema."""
+    from .db import Base, check_deployment, make_engine, make_sessionmaker
+    settings = load_settings("demo" if args.demo else "standard")
+    engine = make_engine(settings.db_url)
+    Base.metadata.create_all(engine)
+    with make_sessionmaker(engine)() as db:
+        fresh = check_deployment(db, settings.build)
+    print(f"{'Initialised' if fresh else 'Already initialised'}: {settings.build} build at "
+          f"{engine.url.render_as_string(hide_password=True)}")
+
+
+def cmd_create_user(args):
+    Role(args.role)
+    password = sys.stdin.readline().rstrip("\n") if args.password_stdin else getpass.getpass("Password: ")
+    _, db = _db("standard")
+    with db, ledger.transaction(db):
+        user = User(username=args.username, name=args.name, role=args.role, unit=args.unit,
+                    password_hash=hash_password(password), totp_secret=new_totp_secret(), created_at=utcnow_iso())
+        db.add(user)
+        db.flush()
+        ledger.append(db, actor=ADMIN_ACTOR, action="USER_CREATED",
+                      payload={"username": user.username, "role": user.role, "unit": user.unit})
+    print(f"Created {args.username} ({args.role}, {args.unit}).")
+    print("Add this to an authenticator app now; it is not shown again:")
+    print(f"  {totp_uri(user)}")
+
+
+def cmd_create_case(args):
+    _, db = _db("standard")
+    with db, ledger.transaction(db):
+        db.add(Case(id=args.id, fir_no=args.fir_no, unit=args.unit, city=args.city, title=args.title,
+                    status="OPEN", created_at=utcnow_iso()))
+        ledger.append(db, actor=ADMIN_ACTOR, action="CASE_CREATED",
+                      payload={"case_id": args.id, "fir_no": args.fir_no, "unit": args.unit})
+    print(f"Created case {args.id}.")
+
+
+def cmd_add_member(args):
+    _, db = _db("standard")
+    with db, ledger.transaction(db):
+        user = db.scalar(select(User).where(User.username == args.username))
+        if user is None or db.get(Case, args.case) is None:
+            sys.exit("unknown user or case")
+        db.add(CaseMember(case_id=args.case, user_id=user.id, access=args.access, granted_at=utcnow_iso(),
+                          granted_by=ADMIN_ACTOR))
+        ledger.append(db, actor=ADMIN_ACTOR, action="MEMBER_ADDED",
+                      payload={"case_id": args.case, "username": args.username, "access": args.access})
+    print(f"{args.username} is now {args.access} of {args.case}.")
+
+
+def cmd_verify_ledger(args):
+    _, db = _db("demo" if args.demo else "standard")
+    with db:
+        report = ledger.verify(db)
+    print(json.dumps(report, indent=2))
+    sys.exit(0 if report["ok"] else 1)
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(prog="pramana")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    s = sub.add_parser("serve"); s.add_argument("--demo", action="store_true")
+    s.add_argument("--host", default="127.0.0.1"); s.add_argument("--port", type=int, default=8000)
+    s.set_defaults(fn=cmd_serve)
+    s = sub.add_parser("demo-reset"); s.add_argument("--preload-all", action="store_true")
+    s.add_argument("--yes", action="store_true", help="confirm wiping a hosted (non-SQLite) demo database")
+    s.set_defaults(fn=cmd_demo_reset)
+    s = sub.add_parser("init-db"); s.add_argument("--demo", action="store_true")
+    s.set_defaults(fn=cmd_init_db)
+    s = sub.add_parser("create-user")
+    for a in ("--username", "--name", "--unit"):
+        s.add_argument(a, required=True)
+    s.add_argument("--role", required=True, choices=[r.value for r in Role])
+    s.add_argument("--password-stdin", action="store_true")
+    s.set_defaults(fn=cmd_create_user)
+    s = sub.add_parser("create-case")
+    for a in ("--id", "--fir-no", "--unit", "--title"):
+        s.add_argument(a, required=True)
+    s.add_argument("--city")
+    s.set_defaults(fn=cmd_create_case)
+    s = sub.add_parser("add-member")
+    s.add_argument("--case", required=True); s.add_argument("--username", required=True)
+    s.add_argument("--access", default="member", choices=["owner", "member"])
+    s.set_defaults(fn=cmd_add_member)
+    s = sub.add_parser("verify-ledger"); s.add_argument("--demo", action="store_true")
+    s.set_defaults(fn=cmd_verify_ledger)
+    args = ap.parse_args(argv)
+    args.fn(args)
+
+
+if __name__ == "__main__":
+    main()

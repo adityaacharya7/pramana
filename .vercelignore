@@ -1,0 +1,10 @@
+# Never uploaded to Vercel: local runtime data, environments and tests.
+var/
+backend/.venv/
+backend/.pytest_tmp/
+backend/tests/
+frontend/node_modules/
+frontend/dist/
+**/__pycache__/
+*.pyc
+.claude/

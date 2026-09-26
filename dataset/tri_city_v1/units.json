@@ -1,0 +1,27 @@
+[
+  {
+    "code": "MUM-CYB",
+    "name": "Mumbai Cyber Police (synthetic unit)",
+    "city": "Mumbai"
+  },
+  {
+    "code": "DEL-CYB",
+    "name": "Delhi Cyber Police (synthetic unit)",
+    "city": "Delhi"
+  },
+  {
+    "code": "BLR-CEN",
+    "name": "Bengaluru CEN Police (synthetic unit)",
+    "city": "Bengaluru"
+  },
+  {
+    "code": "VIG",
+    "name": "Vigilance and internal oversight (synthetic unit)",
+    "city": null
+  },
+  {
+    "code": "IT",
+    "name": "IT cell (synthetic unit)",
+    "city": null
+  }
+]

@@ -1,0 +1,3 @@
+account_no,txn_time,txn_id,reference,description,channel,counterparty_account,counterparty_name,debit,credit,balance
+6415585145797,2026-08-10 00:00:00,,,OPENING BALANCE,,,,,,10330.00
+6415585145797,2026-08-31 23:59:59,,,CLOSING BALANCE,,,,,,10330.00

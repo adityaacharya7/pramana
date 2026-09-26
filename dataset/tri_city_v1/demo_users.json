@@ -1,0 +1,56 @@
+[
+  {
+    "username": "io.mumbai",
+    "name": "Insp. Aparna Deshmukh",
+    "role": "IO",
+    "unit": "MUM-CYB"
+  },
+  {
+    "username": "io.delhi",
+    "name": "SI Rohit Malik",
+    "role": "IO",
+    "unit": "DEL-CYB"
+  },
+  {
+    "username": "io.bengaluru",
+    "name": "PSI Chaitra Gowda",
+    "role": "IO",
+    "unit": "BLR-CEN"
+  },
+  {
+    "username": "analyst.mumbai",
+    "name": "Tanvi Kelkar",
+    "role": "ANALYST",
+    "unit": "MUM-CYB"
+  },
+  {
+    "username": "sup.mumbai",
+    "name": "ACP Suhas Pawar",
+    "role": "SUPERVISOR",
+    "unit": "MUM-CYB"
+  },
+  {
+    "username": "sup.delhi",
+    "name": "ACP Ritu Khanna",
+    "role": "SUPERVISOR",
+    "unit": "DEL-CYB"
+  },
+  {
+    "username": "sup.bengaluru",
+    "name": "DySP Manjunath B.",
+    "role": "SUPERVISOR",
+    "unit": "BLR-CEN"
+  },
+  {
+    "username": "auditor",
+    "name": "K. Srinivasan (Vigilance)",
+    "role": "AUDITOR",
+    "unit": "VIG"
+  },
+  {
+    "username": "admin",
+    "name": "IT Cell Administrator",
+    "role": "ADMIN",
+    "unit": "IT"
+  }
+]

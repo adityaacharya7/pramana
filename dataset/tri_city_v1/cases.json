@@ -1,0 +1,580 @@
+[
+  {
+    "id": "C-101",
+    "fir_no": "0412/2026",
+    "city": "Mumbai",
+    "station": "Cyber Police Station (West Region), Mumbai",
+    "title": "Digital arrest impersonation complaint",
+    "registered_on": "2026-08-13",
+    "complainant": "Shobha Anant Kulkarni",
+    "unit": "MUM-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.mumbai",
+        "access": "owner"
+      },
+      {
+        "username": "analyst.mumbai",
+        "access": "member"
+      },
+      {
+        "username": "sup.mumbai",
+        "access": "member"
+      }
+    ]
+  },
+  {
+    "id": "C-102",
+    "fir_no": "0287/2026",
+    "city": "Delhi",
+    "station": "Cyber Police Station, North-West District, Delhi",
+    "title": "Digital arrest impersonation complaint",
+    "registered_on": "2026-08-14",
+    "complainant": "Harish Chandra Bhatia",
+    "unit": "DEL-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.delhi",
+        "access": "owner"
+      },
+      {
+        "username": "io.mumbai",
+        "access": "member"
+      },
+      {
+        "username": "analyst.mumbai",
+        "access": "member"
+      },
+      {
+        "username": "sup.mumbai",
+        "access": "member"
+      }
+    ]
+  },
+  {
+    "id": "C-103",
+    "fir_no": "0198/2026",
+    "city": "Bengaluru",
+    "station": "CEN Police Station, South Division, Bengaluru",
+    "title": "Digital arrest impersonation complaint",
+    "registered_on": "2026-08-16",
+    "complainant": "Kavitha Ramesh",
+    "unit": "BLR-CEN",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.bengaluru",
+        "access": "owner"
+      },
+      {
+        "username": "io.mumbai",
+        "access": "member"
+      },
+      {
+        "username": "analyst.mumbai",
+        "access": "member"
+      },
+      {
+        "username": "sup.mumbai",
+        "access": "member"
+      }
+    ]
+  },
+  {
+    "id": "C-104",
+    "fir_no": "0674/2026",
+    "city": "Mumbai",
+    "station": "Cyber Police Station (East Region), Mumbai",
+    "title": "Online task-based job offer complaint",
+    "registered_on": "2026-07-16",
+    "complainant": "Ganesh Khan",
+    "unit": "MUM-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.mumbai",
+        "access": "owner"
+      },
+      {
+        "username": "analyst.mumbai",
+        "access": "member"
+      }
+    ]
+  },
+  {
+    "id": "C-105",
+    "fir_no": "0571/2026",
+    "city": "Delhi",
+    "station": "Cyber Police Station, South District, Delhi",
+    "title": "Investment platform complaint",
+    "registered_on": "2026-07-28",
+    "complainant": "Gopal Naidu",
+    "unit": "DEL-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.delhi",
+        "access": "owner"
+      }
+    ]
+  },
+  {
+    "id": "C-106",
+    "fir_no": "0200/2026",
+    "city": "Bengaluru",
+    "station": "CEN Police Station, East Division, Bengaluru",
+    "title": "KYC update link - unauthorised debits",
+    "registered_on": "2026-07-13",
+    "complainant": "Meena Mehta",
+    "unit": "BLR-CEN",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.bengaluru",
+        "access": "owner"
+      }
+    ]
+  },
+  {
+    "id": "C-107",
+    "fir_no": "0747/2026",
+    "city": "Mumbai",
+    "station": "Cyber Police Station (West Region), Mumbai",
+    "title": "Marketplace buyer QR payment complaint",
+    "registered_on": "2026-07-31",
+    "complainant": "Chetan Shetty",
+    "unit": "MUM-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.mumbai",
+        "access": "owner"
+      },
+      {
+        "username": "analyst.mumbai",
+        "access": "member"
+      }
+    ]
+  },
+  {
+    "id": "C-108",
+    "fir_no": "0487/2026",
+    "city": "Delhi",
+    "station": "Cyber Police Station, North-West District, Delhi",
+    "title": "Electricity disconnection message complaint",
+    "registered_on": "2026-08-06",
+    "complainant": "Naveen Agarwal",
+    "unit": "DEL-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.delhi",
+        "access": "owner"
+      }
+    ]
+  },
+  {
+    "id": "C-109",
+    "fir_no": "0432/2026",
+    "city": "Bengaluru",
+    "station": "CEN Police Station, East Division, Bengaluru",
+    "title": "Courier customs fee complaint",
+    "registered_on": "2026-07-24",
+    "complainant": "Gauri Desai",
+    "unit": "BLR-CEN",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.bengaluru",
+        "access": "owner"
+      }
+    ]
+  },
+  {
+    "id": "C-110",
+    "fir_no": "0820/2026",
+    "city": "Mumbai",
+    "station": "Cyber Police Station (West Region), Mumbai",
+    "title": "Fake customer care refund complaint",
+    "registered_on": "2026-08-10",
+    "complainant": "Yusuf Kulkarni",
+    "unit": "MUM-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.mumbai",
+        "access": "owner"
+      },
+      {
+        "username": "analyst.mumbai",
+        "access": "member"
+      }
+    ]
+  },
+  {
+    "id": "C-111",
+    "fir_no": "0800/2026",
+    "city": "Delhi",
+    "station": "Cyber Police Station, North-West District, Delhi",
+    "title": "Online task-based job offer complaint",
+    "registered_on": "2026-08-08",
+    "complainant": "Priya Agarwal",
+    "unit": "DEL-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.delhi",
+        "access": "owner"
+      }
+    ]
+  },
+  {
+    "id": "C-112",
+    "fir_no": "0249/2026",
+    "city": "Bengaluru",
+    "station": "CEN Police Station, East Division, Bengaluru",
+    "title": "Investment platform complaint",
+    "registered_on": "2026-08-06",
+    "complainant": "Santosh Fernandes",
+    "unit": "BLR-CEN",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.bengaluru",
+        "access": "owner"
+      }
+    ]
+  },
+  {
+    "id": "C-113",
+    "fir_no": "0494/2026",
+    "city": "Mumbai",
+    "station": "Cyber Police Station (West Region), Mumbai",
+    "title": "Loan app harassment and payment complaint",
+    "registered_on": "2026-08-05",
+    "complainant": "Geeta Thakur",
+    "unit": "MUM-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.mumbai",
+        "access": "owner"
+      },
+      {
+        "username": "analyst.mumbai",
+        "access": "member"
+      }
+    ]
+  },
+  {
+    "id": "C-114",
+    "fir_no": "0775/2026",
+    "city": "Bengaluru",
+    "station": "CEN Police Station, East Division, Bengaluru",
+    "title": "Digital arrest impersonation complaint",
+    "registered_on": "2026-08-23",
+    "complainant": "Mridula Qureshi",
+    "unit": "BLR-CEN",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.bengaluru",
+        "access": "owner"
+      }
+    ]
+  },
+  {
+    "id": "C-115",
+    "fir_no": "0475/2026",
+    "city": "Delhi",
+    "station": "Cyber Police Station, North-West District, Delhi",
+    "title": "KYC update link - unauthorised debits",
+    "registered_on": "2026-08-10",
+    "complainant": "Aditya Das",
+    "unit": "DEL-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.delhi",
+        "access": "owner"
+      }
+    ]
+  },
+  {
+    "id": "C-116",
+    "fir_no": "0993/2026",
+    "city": "Mumbai",
+    "station": "Cyber Police Station (East Region), Mumbai",
+    "title": "Electricity disconnection message complaint",
+    "registered_on": "2026-08-22",
+    "complainant": "Sanjay Shaikh",
+    "unit": "MUM-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.mumbai",
+        "access": "owner"
+      },
+      {
+        "username": "analyst.mumbai",
+        "access": "member"
+      }
+    ]
+  },
+  {
+    "id": "C-117",
+    "fir_no": "0140/2026",
+    "city": "Bengaluru",
+    "station": "CEN Police Station, South Division, Bengaluru",
+    "title": "Marketplace buyer QR payment complaint",
+    "registered_on": "2026-07-13",
+    "complainant": "Amit Hegde",
+    "unit": "BLR-CEN",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.bengaluru",
+        "access": "owner"
+      }
+    ]
+  },
+  {
+    "id": "C-118",
+    "fir_no": "0795/2026",
+    "city": "Delhi",
+    "station": "Cyber Police Station, North-West District, Delhi",
+    "title": "Fake customer care refund complaint",
+    "registered_on": "2026-07-28",
+    "complainant": "Amit Fernandes",
+    "unit": "DEL-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.delhi",
+        "access": "owner"
+      }
+    ]
+  },
+  {
+    "id": "C-119",
+    "fir_no": "0123/2026",
+    "city": "Mumbai",
+    "station": "Cyber Police Station (West Region), Mumbai",
+    "title": "Crypto trading platform complaint",
+    "registered_on": "2026-07-13",
+    "complainant": "Ramesh Qureshi",
+    "unit": "MUM-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.mumbai",
+        "access": "owner"
+      },
+      {
+        "username": "analyst.mumbai",
+        "access": "member"
+      }
+    ]
+  },
+  {
+    "id": "C-120",
+    "fir_no": "0339/2026",
+    "city": "Bengaluru",
+    "station": "CEN Police Station, South Division, Bengaluru",
+    "title": "Online task-based job offer complaint",
+    "registered_on": "2026-08-27",
+    "complainant": "Deepa Khan",
+    "unit": "BLR-CEN",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.bengaluru",
+        "access": "owner"
+      }
+    ]
+  },
+  {
+    "id": "C-121",
+    "fir_no": "0799/2026",
+    "city": "Delhi",
+    "station": "Cyber Police Station, North-West District, Delhi",
+    "title": "Courier customs fee complaint",
+    "registered_on": "2026-08-17",
+    "complainant": "Farida Wagh",
+    "unit": "DEL-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.delhi",
+        "access": "owner"
+      }
+    ]
+  },
+  {
+    "id": "C-122",
+    "fir_no": "0566/2026",
+    "city": "Mumbai",
+    "station": "Cyber Police Station (East Region), Mumbai",
+    "title": "KYC update link - unauthorised debits",
+    "registered_on": "2026-08-09",
+    "complainant": "Sadhana Pillai",
+    "unit": "MUM-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.mumbai",
+        "access": "owner"
+      },
+      {
+        "username": "analyst.mumbai",
+        "access": "member"
+      }
+    ]
+  },
+  {
+    "id": "C-123",
+    "fir_no": "0714/2026",
+    "city": "Bengaluru",
+    "station": "CEN Police Station, South Division, Bengaluru",
+    "title": "Electricity disconnection message complaint",
+    "registered_on": "2026-08-30",
+    "complainant": "Kiran Singh",
+    "unit": "BLR-CEN",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.bengaluru",
+        "access": "owner"
+      }
+    ]
+  },
+  {
+    "id": "C-124",
+    "fir_no": "0804/2026",
+    "city": "Delhi",
+    "station": "Cyber Police Station, North-West District, Delhi",
+    "title": "Marketplace buyer QR payment complaint",
+    "registered_on": "2026-08-21",
+    "complainant": "Rashmi Dubey",
+    "unit": "DEL-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.delhi",
+        "access": "owner"
+      }
+    ]
+  },
+  {
+    "id": "C-125",
+    "fir_no": "0400/2026",
+    "city": "Mumbai",
+    "station": "Cyber Police Station (West Region), Mumbai",
+    "title": "Loan app harassment and payment complaint",
+    "registered_on": "2026-08-11",
+    "complainant": "Priya Malhotra",
+    "unit": "MUM-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.mumbai",
+        "access": "owner"
+      },
+      {
+        "username": "analyst.mumbai",
+        "access": "member"
+      }
+    ]
+  },
+  {
+    "id": "C-126",
+    "fir_no": "0933/2026",
+    "city": "Delhi",
+    "station": "Cyber Police Station, South District, Delhi",
+    "title": "Digital arrest impersonation complaint",
+    "registered_on": "2026-07-21",
+    "complainant": "Ganesh Rawat",
+    "unit": "DEL-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.delhi",
+        "access": "owner"
+      }
+    ]
+  },
+  {
+    "id": "C-127",
+    "fir_no": "0403/2026",
+    "city": "Bengaluru",
+    "station": "CEN Police Station, East Division, Bengaluru",
+    "title": "Fake customer care refund complaint",
+    "registered_on": "2026-08-13",
+    "complainant": "Naveen Reddy",
+    "unit": "BLR-CEN",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.bengaluru",
+        "access": "owner"
+      }
+    ]
+  },
+  {
+    "id": "C-128",
+    "fir_no": "0203/2026",
+    "city": "Mumbai",
+    "station": "Cyber Police Station (East Region), Mumbai",
+    "title": "Courier customs fee complaint",
+    "registered_on": "2026-07-06",
+    "complainant": "Sadhana Talwar",
+    "unit": "MUM-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.mumbai",
+        "access": "owner"
+      },
+      {
+        "username": "analyst.mumbai",
+        "access": "member"
+      }
+    ]
+  },
+  {
+    "id": "C-129",
+    "fir_no": "0393/2026",
+    "city": "Delhi",
+    "station": "Cyber Police Station, North-West District, Delhi",
+    "title": "Investment platform complaint",
+    "registered_on": "2026-07-20",
+    "complainant": "Prakash Dubey",
+    "unit": "DEL-CYB",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.delhi",
+        "access": "owner"
+      }
+    ]
+  },
+  {
+    "id": "C-130",
+    "fir_no": "0622/2026",
+    "city": "Bengaluru",
+    "station": "CEN Police Station, East Division, Bengaluru",
+    "title": "Online task-based job offer complaint",
+    "registered_on": "2026-08-29",
+    "complainant": "Kiran Malhotra",
+    "unit": "BLR-CEN",
+    "status": "OPEN",
+    "members": [
+      {
+        "username": "io.bengaluru",
+        "access": "owner"
+      }
+    ]
+  }
+]

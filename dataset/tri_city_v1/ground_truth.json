@@ -1,0 +1,977 @@
+{
+  "dataset": "tri_city_v1",
+  "tri_city": {
+    "summary": "Tri-City Digital Arrest: three victims in three cities, three mule accounts opened at one branch by one official, converging on a partnership-firm current account that converts funds to USDT via a P2P seller.",
+    "labels": {
+      "P-77": {
+        "type": "phone",
+        "value": "6577461070",
+        "role": "caller in C-101 and C-102"
+      },
+      "P-81": {
+        "type": "phone",
+        "value": "8314573287",
+        "role": "caller in C-103"
+      },
+      "V1": {
+        "type": "bank_account",
+        "value": "6740454760436",
+        "holder": "Shobha Anant Kulkarni",
+        "case": "C-101"
+      },
+      "V2": {
+        "type": "bank_account",
+        "value": "87502954453",
+        "holder": "Harish Chandra Bhatia",
+        "case": "C-102"
+      },
+      "V3": {
+        "type": "bank_account",
+        "value": "4007140334880",
+        "holder": "Kavitha Ramesh",
+        "case": "C-103"
+      },
+      "V1-phone": {
+        "type": "phone",
+        "value": "6573879984"
+      },
+      "V2-phone": {
+        "type": "phone",
+        "value": "6263092463"
+      },
+      "M1": {
+        "type": "bank_account",
+        "value": "6048957397316",
+        "holder": "Sandeep Kumar Verma",
+        "ifsc": "XSSB0000017"
+      },
+      "M2": {
+        "type": "bank_account",
+        "value": "4555065800338",
+        "holder": "Rahul Sharma",
+        "ifsc": "XSSB0000017"
+      },
+      "M3": {
+        "type": "bank_account",
+        "value": "99759036248",
+        "holder": "Pooja Rawat",
+        "ifsc": "XSSB0000017"
+      },
+      "HUB": {
+        "type": "bank_account",
+        "value": "563551302754",
+        "holder": "Shree Balaji Traders",
+        "ifsc": "XNDB0000022",
+        "opened": "2026-07-01"
+      },
+      "P2P": {
+        "type": "bank_account",
+        "value": "536338398255",
+        "holder": "Aakash Jain"
+      },
+      "W-1": {
+        "type": "crypto_wallet",
+        "value": "TjS29d87cA7VQpY3JfgvxJdeEKzGHnnRGg",
+        "network": "TRON (TRC20)"
+      },
+      "B-17": {
+        "type": "bank_branch",
+        "value": "XSSB0000017",
+        "name": "Sahyadri Synthetic Bank, Ranipur Main Road"
+      },
+      "E-45": {
+        "type": "bank_official",
+        "value": "E-45",
+        "name": "Vivek Chauhan"
+      },
+      "GROCERY": {
+        "type": "upi",
+        "value": "omsaikirana23@fakepay",
+        "holder": "Om Sai Kirana Stores"
+      },
+      "RAHUL-M2": {
+        "type": "person",
+        "phone": "7111397769",
+        "note": "M2 account holder (KYC in C-102)"
+      },
+      "RAHUL-WITNESS": {
+        "type": "person",
+        "phone": "8291757790",
+        "note": "Witness in C-101"
+      },
+      "IMEI-P77": {
+        "type": "imei",
+        "value": "352818503028069"
+      }
+    },
+    "transfers": [
+      {
+        "id": "V1-M1",
+        "reference": "620746847120",
+        "time": "2026-08-12 10:05:00",
+        "amount": 78000
+      },
+      {
+        "id": "V2-M2",
+        "reference": "621156335443",
+        "time": "2026-08-12 10:24:00",
+        "amount": 58000
+      },
+      {
+        "id": "V3-M3",
+        "reference": "620022990380",
+        "time": "2026-08-12 10:47:00",
+        "amount": 39000
+      },
+      {
+        "id": "M1-HUB",
+        "reference": "621759975506",
+        "time": "2026-08-12 10:31:00",
+        "amount": 77000
+      },
+      {
+        "id": "M2-HUB",
+        "reference": "627393734027",
+        "time": "2026-08-12 10:52:00",
+        "amount": 60000
+      },
+      {
+        "id": "M3-HUB",
+        "reference": "626511064273",
+        "time": "2026-08-12 11:14:00",
+        "amount": 38500
+      },
+      {
+        "id": "HUB-P2P",
+        "reference": "628686627602",
+        "time": "2026-08-12 12:10:00",
+        "amount": 160000
+      }
+    ],
+    "victim_loss_total": 175000,
+    "mixed_funds": {
+      "account": "M2",
+      "before_victim_credit": {
+        "balance": 50000,
+        "source": "August salary"
+      },
+      "victim_credit": 58000,
+      "grocery_payment": 2000,
+      "onward_to_hub": 60000,
+      "note": "Attribution of the 60,000 depends on method (FIFO/LIFO/pro-rata); computed by the engine, not asserted here."
+    },
+    "expected_observations": [
+      {
+        "rule": "SHARED-ID-v1",
+        "subject": "P-77",
+        "cases": [
+          "C-101",
+          "C-102"
+        ]
+      },
+      {
+        "rule": "SHARED-ID-v1",
+        "subject": "HUB",
+        "cases": [
+          "C-101",
+          "C-102",
+          "C-103"
+        ],
+        "via": "M2 and M3 statements name HUB; HUB statement is in C-101"
+      },
+      {
+        "rule": "SHARED-ID-v1",
+        "subject": "M2",
+        "cases": [
+          "C-101",
+          "C-102"
+        ],
+        "via": "HUB statement"
+      },
+      {
+        "rule": "SHARED-ID-v1",
+        "subject": "M3",
+        "cases": [
+          "C-101",
+          "C-103"
+        ],
+        "via": "HUB statement"
+      },
+      {
+        "rule": "SHARED-ID-v1",
+        "subject": "V2-phone",
+        "cases": [
+          "C-101",
+          "C-102"
+        ],
+        "via": "victim number in the P-77 CDR; ordinary explanation: the victim was called"
+      },
+      {
+        "rule": "CONVERGENCE-v1",
+        "subject": "HUB",
+        "window": [
+          "2026-08-12 10:31",
+          "2026-08-12 11:14"
+        ],
+        "accounts": [
+          "M1",
+          "M2",
+          "M3"
+        ]
+      },
+      {
+        "rule": "LAYERING-v1",
+        "subject": "V -> M -> HUB -> P2P",
+        "note": "HUB forwards 1,60,000 of 1,75,500 received within 56 minutes"
+      },
+      {
+        "rule": "CASHOUT-v1",
+        "subject": "HUB -> P2P -> W-1",
+        "requires": "seized_chat_p2p_seller.txt"
+      },
+      {
+        "rule": "FACILITATOR-v1",
+        "subject": "B-17 + E-45",
+        "accounts": [
+          "M1",
+          "M2",
+          "M3"
+        ]
+      },
+      {
+        "rule": "MO-MATCH-v1",
+        "subject": "C-103",
+        "compare_with": [
+          "C-101",
+          "C-102"
+        ],
+        "matching_attributes": [
+          "impersonated agency (CBI)",
+          "payment instruction (RBI verification / custody account)",
+          "contact channel (video call)",
+          "duration (multi-day digital arrest)"
+        ],
+        "differs": [
+          "pretext: SIM misuse vs courier parcel"
+        ]
+      },
+      {
+        "rule": "ORDINARY-PAYMENT-v1",
+        "subject": "M2 -> GROCERY 2,000",
+        "note": "flag for verification, never clear"
+      }
+    ],
+    "expected_silent": [
+      {
+        "rule": "FRONT-ENTITY-v1",
+        "subject": "HUB",
+        "reason": "opened < 90 days and >= 2 complaint-linked credits, but its address and phone are not shared with another flagged entity"
+      }
+    ],
+    "identity": {
+      "FX-01": {
+        "records": [
+          "RAHUL-M2",
+          "RAHUL-WITNESS"
+        ],
+        "expected": "kept separate; conflict shown",
+        "differences": [
+          "phone",
+          "Aadhaar",
+          "father's name",
+          "address"
+        ]
+      }
+    },
+    "challenge": {
+      "FX-26": {
+        "operation": "exclude_source",
+        "target": "bank record for M3 -> HUB",
+        "reference": "626511064273",
+        "records": [
+          "M3 statement debit row",
+          "HUB statement credit row"
+        ],
+        "note": "Both rows carry one bank reference: two views of one record, one source group.",
+        "expected": "CONVERGENCE-v1 threshold not met (2 of 3); M1->HUB and M2->HUB still supported; estimates recompute; live case unchanged until a reviewed change is applied"
+      }
+    }
+  },
+  "noise_cases": [
+    {
+      "case_id": "C-104",
+      "family": "JOB",
+      "template_family": "JOB-EN-1",
+      "language": "en",
+      "plan": "atm",
+      "loss": 65000,
+      "receiving_accounts": [
+        {
+          "account": "67336575910",
+          "upi": "santoshsri20@fakepay",
+          "holder": "Santosh Srivastava",
+          "statement_obtained": true
+        },
+        {
+          "account": "192466420382",
+          "upi": "manojdubey57@demobank",
+          "holder": "Manoj Dubey",
+          "statement_obtained": false
+        }
+      ],
+      "opened_by": "E-52",
+      "extras": [
+        "second_mule",
+        "supp"
+      ],
+      "caller": "9405710490",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-105",
+      "family": "INV",
+      "template_family": "INV-EN-1",
+      "language": "en",
+      "plan": "layer",
+      "loss": 350000,
+      "receiving_accounts": [
+        {
+          "account": "35527699442279",
+          "upi": "jaiambecon33@demobank",
+          "holder": "Jai Ambe Consultancy Services",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": "E-63",
+      "extras": [
+        "supp"
+      ],
+      "caller": "8602209279",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-106",
+      "family": "KYC",
+      "template_family": "KYC-EN-1",
+      "language": "en",
+      "plan": "upi_spray",
+      "loss": 49998,
+      "receiving_accounts": [
+        {
+          "account": "997036482880",
+          "upi": "arjunjain19@demobank",
+          "holder": "Arjun Jain",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": null,
+      "extras": [],
+      "caller": "6453929832",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-107",
+      "family": "MKT",
+      "template_family": "MKT-EN-1",
+      "language": "en",
+      "plan": "atm",
+      "loss": 45000,
+      "receiving_accounts": [
+        {
+          "account": "9716796581406",
+          "upi": "ashokkapoo31@fakepay",
+          "holder": "Ashok Kapoor",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": "E-46",
+      "extras": [
+        "dup_stmt"
+      ],
+      "caller": "9193297960",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-108",
+      "family": "ELEC",
+      "template_family": "ELEC-HG-1",
+      "language": "hg",
+      "plan": "hold",
+      "loss": 72500,
+      "receiving_accounts": [
+        {
+          "account": "85349168542538",
+          "upi": "dineshdas48@demobank",
+          "holder": "Dinesh Das",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": "E-51",
+      "extras": [],
+      "caller": "8168194907",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-109",
+      "family": "COUR",
+      "template_family": "COUR-EN-1",
+      "language": "en",
+      "plan": "none",
+      "loss": 24500,
+      "receiving_accounts": [
+        {
+          "account": "5628387481054",
+          "upi": "lokeshmalh48@synupi",
+          "holder": "Lokesh Malhotra",
+          "statement_obtained": false
+        }
+      ],
+      "opened_by": null,
+      "extras": [],
+      "caller": "9478441270",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-110",
+      "family": "CC",
+      "template_family": "CC-EN-1",
+      "language": "en",
+      "plan": "layer",
+      "loss": 45000,
+      "receiving_accounts": [
+        {
+          "account": "120522953684",
+          "upi": "snehakumar32@fakepay",
+          "holder": "Sneha Kumar",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": "E-64",
+      "extras": [
+        "supp"
+      ],
+      "caller": "8241220246",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-111",
+      "family": "JOB",
+      "template_family": "JOB-HG-1",
+      "language": "hg",
+      "plan": "atm",
+      "loss": 35000,
+      "receiving_accounts": [
+        {
+          "account": "6415585145797",
+          "upi": "priyapande39@demobank",
+          "holder": "Priya Pandey",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": "E-46",
+      "extras": [
+        "gap_stmt"
+      ],
+      "caller": "6432918650",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-112",
+      "family": "INV",
+      "template_family": "INV-EN-1",
+      "language": "en",
+      "plan": "layer",
+      "loss": 300000,
+      "receiving_accounts": [
+        {
+          "account": "1813763248128",
+          "upi": "greenleafw41@fakepay",
+          "holder": "Green Leaf Wealth Advisory LLP",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": "E-52",
+      "extras": [
+        "supp"
+      ],
+      "caller": "9673734811",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-113",
+      "family": "LOAN",
+      "template_family": "LOAN-HI-1",
+      "language": "hi",
+      "plan": "upi_spray",
+      "loss": 21000,
+      "receiving_accounts": [
+        {
+          "account": "52636821805",
+          "upi": "chetanseth18@demobank",
+          "holder": "Chetan Sethi",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": null,
+      "extras": [],
+      "caller": "9444925591",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-114",
+      "family": "DA",
+      "template_family": "DA-EN-2",
+      "language": "en",
+      "plan": "atm",
+      "loss": 240000,
+      "receiving_accounts": [
+        {
+          "account": "845374039352",
+          "upi": "madhuriwag95@demobank",
+          "holder": "Madhuri Wagh",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": "E-63",
+      "extras": [
+        "supp"
+      ],
+      "caller": "8258669841",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-115",
+      "family": "KYC",
+      "template_family": "KYC-HI-1",
+      "language": "hi",
+      "plan": "none",
+      "loss": 49000,
+      "receiving_accounts": [
+        {
+          "account": "7600384194435",
+          "upi": "ritusethi35@demobank",
+          "holder": "Ritu Sethi",
+          "statement_obtained": false
+        }
+      ],
+      "opened_by": null,
+      "extras": [],
+      "caller": "7294965632",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-116",
+      "family": "ELEC",
+      "template_family": "ELEC-EN-1",
+      "language": "en",
+      "plan": "hold",
+      "loss": 115000,
+      "receiving_accounts": [
+        {
+          "account": "496806923437",
+          "upi": "naveenhegd99@fakepay",
+          "holder": "Naveen Hegde",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": null,
+      "extras": [],
+      "caller": "8383863377",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-117",
+      "family": "MKT",
+      "template_family": "MKT-HI-1",
+      "language": "hi",
+      "plan": "atm",
+      "loss": 18500,
+      "receiving_accounts": [
+        {
+          "account": "2099344976085",
+          "upi": "bhavnamalh67@demobank",
+          "holder": "Bhavna Malhotra",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": "E-64",
+      "extras": [],
+      "caller": "7743780732",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-118",
+      "family": "CC",
+      "template_family": "CC-EN-1",
+      "language": "en",
+      "plan": "none",
+      "loss": 32000,
+      "receiving_accounts": [
+        {
+          "account": "4240221411028",
+          "upi": "gauribose23@synupi",
+          "holder": "Gauri Bose",
+          "statement_obtained": false
+        }
+      ],
+      "opened_by": null,
+      "extras": [
+        "shared_family_phone"
+      ],
+      "caller": "9890315422",
+      "shared_family_phone": "8336046834"
+    },
+    {
+      "case_id": "C-119",
+      "family": "INVC",
+      "template_family": "INV-EN-2",
+      "language": "en",
+      "plan": "layer",
+      "loss": 200000,
+      "receiving_accounts": [
+        {
+          "account": "3475449909541",
+          "upi": "omsaienter27@fakepay",
+          "holder": "Om Sai Enterprises",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": null,
+      "extras": [
+        "recon_victim",
+        "supp"
+      ],
+      "caller": "7151419287",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-120",
+      "family": "JOB",
+      "template_family": "JOB-EN-1",
+      "language": "en",
+      "plan": "upi_spray",
+      "loss": 42000,
+      "receiving_accounts": [
+        {
+          "account": "6221513931854",
+          "upi": "bhavnarao96@synupi",
+          "holder": "Bhavna Rao",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": null,
+      "extras": [],
+      "caller": "6750379285",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-121",
+      "family": "COUR",
+      "template_family": "COUR-EN-1",
+      "language": "en",
+      "plan": "hold",
+      "loss": 22000,
+      "receiving_accounts": [
+        {
+          "account": "96029949819",
+          "upi": "farhanmeno20@fakepay",
+          "holder": "Farhan Menon",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": null,
+      "extras": [],
+      "caller": "6171638555",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-122",
+      "family": "KYC",
+      "template_family": "KYC-EN-1",
+      "language": "en",
+      "plan": "atm",
+      "loss": 38000,
+      "receiving_accounts": [
+        {
+          "account": "4660840692557",
+          "upi": "zainabwagh16@demobank",
+          "holder": "Zainab Wagh",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": null,
+      "extras": [
+        "dmy_mule"
+      ],
+      "caller": "8473274019",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-123",
+      "family": "ELEC",
+      "template_family": "ELEC-EN-1",
+      "language": "en",
+      "plan": "none",
+      "loss": 6000,
+      "receiving_accounts": [
+        {
+          "account": "218950194574",
+          "upi": "mohitnair78@demobank",
+          "holder": "Mohit Nair",
+          "statement_obtained": false
+        }
+      ],
+      "opened_by": null,
+      "extras": [],
+      "caller": "8713065717",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-124",
+      "family": "MKT",
+      "template_family": "MKT-EN-1",
+      "language": "en",
+      "plan": "atm",
+      "loss": 27000,
+      "receiving_accounts": [
+        {
+          "account": "629865586608",
+          "upi": "priyasawan70@fakepay",
+          "holder": "Priya Sawant",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": null,
+      "extras": [],
+      "caller": "8492016220",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-125",
+      "family": "LOAN",
+      "template_family": "LOAN-EN-1",
+      "language": "en",
+      "plan": "upi_spray",
+      "loss": 15000,
+      "receiving_accounts": [
+        {
+          "account": "968130796957",
+          "upi": "kirankhan20@fakepay",
+          "holder": "Kiran Khan",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": null,
+      "extras": [],
+      "caller": "9098415740",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-126",
+      "family": "DA",
+      "template_family": "DA-HG-1",
+      "language": "hg",
+      "plan": "layer",
+      "loss": 180000,
+      "receiving_accounts": [
+        {
+          "account": "122438903878",
+          "upi": "ushakapoor27@fakepay",
+          "holder": "Usha Kapoor",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": null,
+      "extras": [],
+      "caller": "9629999462",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-127",
+      "family": "CC",
+      "template_family": "CC-EN-1",
+      "language": "en",
+      "plan": "layer",
+      "loss": 55000,
+      "receiving_accounts": [
+        {
+          "account": "68932575253",
+          "upi": "amitnair15@demobank",
+          "holder": "Amit Nair",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": null,
+      "extras": [],
+      "caller": "6014859980",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-128",
+      "family": "COUR",
+      "template_family": "COUR-EN-1",
+      "language": "en",
+      "plan": "none",
+      "loss": 11000,
+      "receiving_accounts": [
+        {
+          "account": "76233880131057",
+          "upi": "anjalisaxe73@fakepay",
+          "holder": "Anjali Saxena",
+          "statement_obtained": false
+        }
+      ],
+      "opened_by": null,
+      "extras": [],
+      "caller": "8142478709",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-129",
+      "family": "INV",
+      "template_family": "INV-EN-1",
+      "language": "en",
+      "plan": "hold",
+      "loss": 450000,
+      "receiving_accounts": [
+        {
+          "account": "4899442373033",
+          "upi": "annapurnat39@synupi",
+          "holder": "Annapurna Trading Co",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": null,
+      "extras": [
+        "supp"
+      ],
+      "caller": "8460170449",
+      "shared_family_phone": null
+    },
+    {
+      "case_id": "C-130",
+      "family": "JOB",
+      "template_family": "JOB-EN-1",
+      "language": "en",
+      "plan": "atm",
+      "loss": 26000,
+      "receiving_accounts": [
+        {
+          "account": "944550274842",
+          "upi": "ashawagh58@synupi",
+          "holder": "Asha Wagh",
+          "statement_obtained": true
+        }
+      ],
+      "opened_by": null,
+      "extras": [],
+      "caller": "9450139647",
+      "shared_family_phone": null
+    }
+  ],
+  "quality_issues": [
+    {
+      "issue": "duplicate_statement",
+      "case_id": "C-107",
+      "files": [
+        "cases/C-107/bank_statement_9716796581406.csv",
+        "cases/C-107/bank_statement_9716796581406_copy_received_by_email.csv"
+      ],
+      "detail": "same statement received twice; must count as one source"
+    },
+    {
+      "issue": "statement_date_gap",
+      "case_id": "C-111",
+      "files": [
+        "cases/C-111/bank_statement_6415585145797_jul.csv",
+        "cases/C-111/bank_statement_6415585145797_aug10-31.csv"
+      ],
+      "detail": "no statement covers 2026-08-01 to 2026-08-09; the victim credits and the withdrawals fall inside the gap"
+    },
+    {
+      "issue": "balance_does_not_reconcile",
+      "case_id": "C-119",
+      "file": "cases/C-119/bank_statement_victim_71589251041.csv",
+      "detail": "one ordinary debit row omitted; running balance still reflects it"
+    },
+    {
+      "issue": "ambiguous_date_format",
+      "case_id": "C-122",
+      "file": "cases/C-122/bank_statement_4660840692557.csv",
+      "detail": "DD/MM/YYYY with every day <= 12, so day and month cannot be told apart from the file alone"
+    }
+  ],
+  "bank_branches": {
+    "B-17": {
+      "bank": "XSSB",
+      "ifsc": "XSSB0000017",
+      "name": "Ranipur Main Road",
+      "bank_name": null
+    },
+    "B-22": {
+      "bank": "XNDB",
+      "ifsc": "XNDB0000022",
+      "name": "Devgarh Market Yard",
+      "bank_name": null
+    },
+    "B-31": {
+      "bank": "XKTB",
+      "ifsc": "XKTB0000031",
+      "name": "Kalyanpur Station Road",
+      "bank_name": null
+    }
+  },
+  "bank_officials": {
+    "E-45": {
+      "name": "Vivek Chauhan",
+      "branch": "B-17"
+    },
+    "E-46": {
+      "name": "Neha Kulshreshtha",
+      "branch": "B-17"
+    },
+    "E-51": {
+      "name": "Sanjay Patil",
+      "branch": "B-22"
+    },
+    "E-52": {
+      "name": "Farida Khan",
+      "branch": "B-22"
+    },
+    "E-63": {
+      "name": "Arvind Nair",
+      "branch": "B-31"
+    },
+    "E-64": {
+      "name": "Meenakshi Iyer",
+      "branch": "B-31"
+    }
+  },
+  "hard_negatives": [
+    {
+      "id": "HN-billers",
+      "what": "Each city's power distributor is paid by several victims, so its UPI ID appears in many cases.",
+      "expected": "SHARED-ID-v1 may observe it; the Receipt's ordinary explanation (utility biller) applies; an officer can dismiss with a logged reason."
+    },
+    {
+      "id": "HN-same-script",
+      "what": "C-114 and C-126 use the fake-CBI digital-arrest script but share no identifier with the Tri-City cases (FX-18 pattern).",
+      "expected": "MO similarity may propose them; no shared-operation claim."
+    },
+    {
+      "id": "HN-family-phone",
+      "what": "C-118 complainant shares one mobile number with a brother (FX-20 pattern).",
+      "expected": "No identity merge."
+    },
+    {
+      "id": "HN-below-threshold",
+      "what": "E-46, E-51, E-52, E-63 and E-64 each opened exactly two complaint-linked or flagged accounts.",
+      "expected": "FACILITATOR-v1 silent for them (threshold is 3)."
+    },
+    {
+      "id": "HN-ordinary",
+      "what": "Most transactions are pensions, salaries, rent, groceries, bills, family transfers and ATM use.",
+      "expected": "No lead."
+    }
+  ]
+}

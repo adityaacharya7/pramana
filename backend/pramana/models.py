@@ -226,7 +226,10 @@ class RuleRun(Base):
     version: Mapped[str] = mapped_column(String(16))
     params: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     run_at: Mapped[str] = mapped_column(String(40))
-    scenario_id: Mapped[str | None] = mapped_column(ForeignKey("scenarios.id"))
+    # rule_runs -> scenarios -> leads -> rule_runs is a cycle; a named,
+    # separately added constraint lets the schema be created and dropped.
+    scenario_id: Mapped[str | None] = mapped_column(
+        ForeignKey("scenarios.id", use_alter=True, name="fk_rule_runs_scenario_id"))
     case_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
     run_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
 

@@ -31,6 +31,13 @@ def make_engine(db_url: str, serverless: bool = False) -> Engine:
     kwargs: dict = {}
     if db_url.startswith("sqlite"):
         kwargs["connect_args"] = {"check_same_thread": False}
+    else:
+        # Hosted Postgres is usually reached through a transaction-mode pooler
+        # (Neon/PgBouncer), where server-side prepared statements can land on
+        # a different backend connection. Never prepare them.
+        kwargs["connect_args"] = {"prepare_threshold": None}
+    if db_url.startswith("sqlite"):
+        pass
     elif serverless:
         # Each function instance is short-lived and there may be many of them:
         # hold no idle connections (use the provider's pooled URL for pooling).

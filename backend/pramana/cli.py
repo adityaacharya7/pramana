@@ -21,6 +21,7 @@ import getpass
 import json
 import shutil
 import sys
+from pathlib import Path
 
 from sqlalchemy import select
 
@@ -74,14 +75,75 @@ def cmd_demo_reset(args):
         if not args.yes:
             sys.exit(f"This drops every PRAMANA table in {engine.url.render_as_string(hide_password=True)} "
                      "and reseeds it with synthetic data. Re-run with --yes to proceed.")
-        Base.metadata.drop_all(engine)
-        dispose_engine(settings.db_url)
+        summary = _seed_via_local_copy(settings, args.preload_all)
+        print(json.dumps(summary, indent=2))
+        return
     engine = make_engine(settings.db_url)
     Base.metadata.create_all(engine)
     with make_sessionmaker(engine)() as db:
         check_deployment(db, "demo")
         summary = seed_demo(db, settings, preload_all=args.preload_all)
     print(json.dumps(summary, indent=2))
+
+
+def _drop_all(engine) -> None:
+    """Drop every PRAMANA table. On PostgreSQL, CASCADE clears constraints left
+    by older schema versions too."""
+    from sqlalchemy import text
+    from .db import Base
+    if engine.dialect.name == "postgresql":
+        with engine.begin() as conn:
+            for name in Base.metadata.tables:
+                conn.execute(text(f'DROP TABLE IF EXISTS "{name}" CASCADE'))
+    else:
+        Base.metadata.drop_all(engine)
+
+
+def _seed_via_local_copy(settings, preload_all: bool, batch: int = 500) -> dict:
+    """Seeding makes thousands of small, dependent queries: fine next to the
+    database, hours over a long network path. So build the demo data in a
+    temporary local database (evidence stored in the database, as the hosted
+    build does), then copy every table across in batches. Rows are copied
+    verbatim, so the audit-log hash chain verifies unchanged."""
+    import dataclasses
+    import tempfile
+    import time
+
+    from .db import Base, check_deployment, dispose_engine, make_engine, make_sessionmaker
+    from .seed import seed_demo
+    from . import ledger as ledger_mod
+
+    t0 = time.time()
+    tmp = Path(tempfile.mkdtemp(prefix="pramana-seed-"))
+    local = dataclasses.replace(settings, db_url=f"sqlite:///{(tmp / 'seed.db').as_posix()}", evidence_store="db")
+    src_engine = make_engine(local.db_url)
+    Base.metadata.create_all(src_engine)
+    with make_sessionmaker(src_engine)() as db:
+        check_deployment(db, "demo")
+        summary = seed_demo(db, local, preload_all=preload_all)
+    print(f"built locally in {time.time() - t0:.0f}s; copying to the hosted database…", file=sys.stderr)
+
+    dst_engine = make_engine(settings.db_url)
+    _drop_all(dst_engine)
+    dispose_engine(settings.db_url)
+    dst_engine = make_engine(settings.db_url)
+    Base.metadata.create_all(dst_engine)
+    copied = {}
+    with src_engine.connect() as src, dst_engine.begin() as dst:
+        for table in Base.metadata.sorted_tables:
+            rows = [dict(r._mapping) for r in src.execute(table.select())]
+            for i in range(0, len(rows), batch):
+                dst.execute(table.insert(), rows[i:i + batch])
+            copied[table.name] = len(rows)
+    dispose_engine(local.db_url)
+    shutil.rmtree(tmp, ignore_errors=True)
+
+    with make_sessionmaker(dst_engine)() as db:
+        report = ledger_mod.verify(db)
+    if not report["ok"]:
+        sys.exit(f"copied, but the audit log does not verify: {report['reason']}")
+    return {**summary, "rows_copied": sum(copied.values()), "ledger_verified": report["ok"],
+            "seconds": round(time.time() - t0)}
 
 
 def cmd_init_db(args):

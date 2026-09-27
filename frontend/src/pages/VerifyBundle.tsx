@@ -2,6 +2,7 @@ import { CheckCircle2, FileUp, XCircle } from 'lucide-react'
 import { useState } from 'react'
 import { api3, type BundleReport } from '../api3'
 import { ErrorNote } from '../components/bits'
+import { PageHeader } from '../components/ui'
 
 export default function VerifyBundle() {
   const [report, setReport] = useState<BundleReport | null>(null)
@@ -26,18 +27,22 @@ export default function VerifyBundle() {
 
   return (
     <div className="page">
-      <div className="page-head">
-        <div>
-          <h1>Verify a handover pack</h1>
-          <p className="muted">
+      <PageHeader
+        eyebrow="Integrity"
+        title="Verify a handover pack"
+        subtitle={
+          <>
             Re-runs the analysis from the bundle alone and compares every finding and estimate with what was exported, then checks the
             hashes and the signed audit-log checkpoint. Offline equivalent: <code>python -m pramana.cli verify-bundle bundle.json</code>.
-          </p>
-        </div>
-      </div>
+          </>
+        }
+      />
       <label className="dropzone">
-        <FileUp size={22} aria-hidden />
-        <span>{busy ? 'Re-running…' : 'Choose a PRAMANA handover bundle (.json)'}</span>
+        <span className="empty-icon"><FileUp size={22} aria-hidden /></span>
+        <span style={{ display: 'grid', gap: 2, textAlign: 'left' }}>
+          <strong>{busy ? 'Re-running the analysis…' : 'Choose a PRAMANA handover bundle'}</strong>
+          <span className="muted small">JSON bundle exported from a lead page. Nothing is uploaded to a case.</span>
+        </span>
         <input type="file" accept=".json,application/json" hidden onChange={(e) => onFile(e.target.files?.[0])} />
       </label>
       <ErrorNote error={error} />

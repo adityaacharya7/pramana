@@ -1,8 +1,9 @@
-import { EyeOff, Lock } from 'lucide-react'
+import { EyeOff, Fingerprint, Link2, Lock } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api3, type MatchRow, type MoProposal } from '../api3'
 import { ErrorNote } from './bits'
+import { useAsk, useToast } from './ui'
 
 export default function CrossCaseTab({ caseId }: { caseId: string }) {
   const [matches, setMatches] = useState<MatchRow[] | null>(null)
@@ -10,6 +11,8 @@ export default function CrossCaseTab({ caseId }: { caseId: string }) {
   const [error, setError] = useState<string | null>(null)
   const [note, setNote] = useState<string | null>(null)
   const [open, setOpen] = useState<string | null>(null)
+  const ask = useAsk()
+  const toast = useToast()
 
   const load = useCallback(() => {
     api3.matches(caseId).then((r) => setMatches(r.matches), (e) => setError(e.message))
@@ -18,10 +21,17 @@ export default function CrossCaseTab({ caseId }: { caseId: string }) {
   useEffect(load, [load])
 
   async function request(token: string, unit: string) {
-    const reason = window.prompt(`Reason for requesting access to the matching case in ${unit} (logged, seen by that unit's supervisor):`)
-    if (!reason || reason.trim().length < 10) return
+    const reason = await ask({
+      title: `Request access — ${unit}`,
+      body: 'Your reason is logged and shown to that unit’s supervisory officer, who decides the request. You see nothing about the case until it is approved.',
+      confirm: 'Send request',
+      minLength: 10,
+      placeholder: 'e.g. Same beneficiary account received money from a complainant in my case',
+    })
+    if (!reason) return
     try {
-      await api3.requestAccess(token, reason.trim())
+      await api3.requestAccess(token, reason)
+      toast(`Access requested from ${unit}.`)
       setNote(`Access requested from ${unit}. Their supervisor decides it.`)
       load()
     } catch (e) {
@@ -35,14 +45,16 @@ export default function CrossCaseTab({ caseId }: { caseId: string }) {
       {note && <div className="note note-ok">{note}</div>}
       <section className="panel">
         <div className="panel-head">
-          <h2>Identifiers seen in other cases</h2>
+          <h2>
+            <Link2 size={17} aria-hidden /> Identifiers seen in other cases
+          </h2>
           <span className="muted small">
             <EyeOff size={12} aria-hidden /> A match in a case outside your scope shows only its owning unit, until access is granted.
           </span>
         </div>
         {matches && matches.length === 0 && <p className="muted pad">No identifier from this case appears in another case.</p>}
         {matches && matches.length > 0 && (
-          <table className="table table-dense">
+          <div className="table-wrap"><table className="table table-dense table-hover">
             <thead><tr><th>Identifier</th><th>Cases you can see</th><th>Outside your scope</th></tr></thead>
             <tbody>
               {matches.map((m) => (
@@ -80,13 +92,15 @@ export default function CrossCaseTab({ caseId }: { caseId: string }) {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
       </section>
 
       <section className="panel">
         <div className="panel-head">
-          <h2>Similar method (MO)</h2>
+          <h2>
+            <Fingerprint size={17} aria-hidden /> Similar method (MO)
+          </h2>
           <span className="muted small">{mo?.note}</span>
         </div>
         {mo?.attributes && (
@@ -96,14 +110,14 @@ export default function CrossCaseTab({ caseId }: { caseId: string }) {
         )}
         {mo && mo.proposals.length === 0 && <p className="muted pad">No other complaint to compare.</p>}
         {mo && mo.proposals.length > 0 && (
-          <table className="table table-dense">
+          <div className="table-wrap"><table className="table table-dense table-hover">
             <thead><tr><th>Case</th><th className="num">Score</th><th>Matching attributes</th><th>Proposed for comparison</th><th /></tr></thead>
             <tbody>
               {mo.proposals.slice(0, 12).map((p) => (
                 <MoRow key={p.case_id} p={p} open={open === p.case_id} onToggle={() => setOpen(open === p.case_id ? null : p.case_id)} />
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
         {mo && <p className="muted small pad">Method: {mo.method}. Score = 0.7 × attribute-profile similarity + 0.3 × text similarity; not a probability of linkage.</p>}
       </section>

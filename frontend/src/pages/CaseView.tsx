@@ -1,5 +1,8 @@
-import { ChevronLeft, Eye, Lock, RefreshCw } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import {
+  ArrowLeftRight, Building2, CalendarDays, ChevronLeft, ClipboardCheck, Eye, FileArchive, FileSpreadsheet, FileText, Image, Lightbulb, Lock,
+  Network, RefreshCw, ShieldX, User, Waypoints,
+} from 'lucide-react'
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { Link, NavLink, useParams } from 'react-router-dom'
 import { api, ApiError, type CaseDetail, type Evidence, type VerifyResult } from '../api'
 import { useAuth } from '../auth'
@@ -7,14 +10,14 @@ import { AccessChip, ErrorNote, Hash, IntegrityBadge } from '../components/bits'
 import EvidenceUpload from '../components/EvidenceUpload'
 import EvidenceViewer from '../components/EvidenceViewer'
 import CrossCaseTab from '../components/CrossCaseTab'
-import GraphTab from '../components/GraphTab'
 import LeadsTab from '../components/LeadsTab'
 import MoneyTrailTab from '../components/MoneyTrailTab'
 import ReviewTab from '../components/ReviewTab'
+import { Avatar, Card, EmptyState, Skeleton } from '../components/ui'
 import { formatBytes, formatDate, formatDateTime, KIND_LABELS } from '../format'
 
-// Workspaces that arrive in later weeks of the build plan. Listed so the
-// shape of a case is visible, but not clickable until they exist.
+const GraphTab = lazy(() => import('../components/GraphTab'))
+
 type Tab = 'evidence' | 'review' | 'graph' | 'leads' | 'trail' | 'crosscase'
 const TABS: Tab[] = ['evidence', 'review', 'graph', 'leads', 'trail', 'crosscase']
 
@@ -70,14 +73,27 @@ function CaseView({ caseId, tab }: { caseId: string; tab: Tab }) {
     return (
       <div className="page">
         <BackLink />
-        <div className="empty">
-          <h2>{failure.status === 403 ? 'You do not have access to this case' : failure.status === 404 ? 'Case not found' : 'Could not open the case'}</h2>
-          <p>{failure.status === 403 ? 'This attempt has been recorded in the audit log. Access to a case outside your scope needs an approved access request.' : failure.message}</p>
-        </div>
+        <Card>
+          <EmptyState
+            icon={<ShieldX size={22} />}
+            title={failure.status === 403 ? 'You do not have access to this case' : failure.status === 404 ? 'Case not found' : 'Could not open the case'}
+          >
+            {failure.status === 403
+              ? 'This attempt has been recorded in the audit log. Access to a case outside your scope needs an approved access request.'
+              : failure.message}
+          </EmptyState>
+        </Card>
       </div>
     )
   }
-  if (!kase) return <div className="page muted">Loading case…</div>
+  if (!kase)
+    return (
+      <div className="page">
+        <Card>
+          <Skeleton lines={4} />
+        </Card>
+      </div>
+    )
 
   const canUpload = can('evidence.upload') && kase.my_access !== 'unit'
   const groups = new Map<string, number>()
@@ -86,7 +102,6 @@ function CaseView({ caseId, tab }: { caseId: string; tab: Tab }) {
 
   return (
     <div className="page">
-      <BackLink />
       <div className="case-head">
         <div>
           <div className="case-kicker">
@@ -97,18 +112,22 @@ function CaseView({ caseId, tab }: { caseId: string; tab: Tab }) {
           <h1>{kase.title}</h1>
           <dl className="facts">
             <div>
+              <User size={16} aria-hidden />
               <dt>Complainant</dt>
               <dd>{kase.complainant ?? '—'}</dd>
             </div>
             <div>
+              <Building2 size={16} aria-hidden />
               <dt>Police station</dt>
               <dd>{kase.station ?? '—'}</dd>
             </div>
             <div>
+              <CalendarDays size={16} aria-hidden />
               <dt>Registered</dt>
               <dd>{formatDate(kase.registered_on)}</dd>
             </div>
             <div>
+              <Network size={16} aria-hidden />
               <dt>Owning unit</dt>
               <dd>{kase.unit}</dd>
             </div>
@@ -119,10 +138,13 @@ function CaseView({ caseId, tab }: { caseId: string; tab: Tab }) {
           <ul>
             {kase.members.map((m) => (
               <li key={m.username}>
-                <span>{m.name}</span>
-                <span className="muted small">
-                  {m.role} · {m.access}
-                </span>
+                <Avatar name={m.name} size={32} />
+                <div>
+                  <span style={{ fontWeight: 600 }}>{m.name}</span>
+                  <span className="muted small">
+                    {m.role} · {m.access}
+                  </span>
+                </div>
               </li>
             ))}
           </ul>
@@ -131,37 +153,41 @@ function CaseView({ caseId, tab }: { caseId: string; tab: Tab }) {
 
       <nav className="tabs" aria-label="Case workspaces">
         <NavLink end to={`/cases/${kase.id}`} className={({ isActive }) => `tab${isActive ? ' tab-active' : ''}`}>
-          Evidence <span className="tab-count">{evidence?.length ?? kase.evidence_count}</span>
+          <FileArchive size={15} aria-hidden /> Evidence <span className="tab-count">{evidence?.length ?? kase.evidence_count}</span>
         </NavLink>
         {can('review.read') && (
           <NavLink to={`/cases/${kase.id}/review`} className={({ isActive }) => `tab${isActive ? ' tab-active' : ''}`}>
-            Review queue
+            <ClipboardCheck size={15} aria-hidden /> Review queue
           </NavLink>
         )}
         {can('graph.read') && (
           <NavLink to={`/cases/${kase.id}/graph`} className={({ isActive }) => `tab${isActive ? ' tab-active' : ''}`}>
-            Graph &amp; timeline
+            <Waypoints size={15} aria-hidden /> Graph &amp; timeline
           </NavLink>
         )}
         {can('lead.read') && (
           <NavLink to={`/cases/${kase.id}/leads`} className={({ isActive }) => `tab${isActive ? ' tab-active' : ''}`}>
-            Leads
+            <Lightbulb size={15} aria-hidden /> Leads
           </NavLink>
         )}
         {can('graph.read') && (
           <NavLink to={`/cases/${kase.id}/trail`} className={({ isActive }) => `tab${isActive ? ' tab-active' : ''}`}>
-            Money trail
+            <ArrowLeftRight size={15} aria-hidden /> Money trail
           </NavLink>
         )}
         {can('graph.read') && (
           <NavLink to={`/cases/${kase.id}/crosscase`} className={({ isActive }) => `tab${isActive ? ' tab-active' : ''}`}>
-            Cross-case
+            <Network size={15} aria-hidden /> Cross-case
           </NavLink>
         )}
       </nav>
 
       {tab === 'review' && <ReviewTab caseId={kase.id} />}
-      {tab === 'graph' && <GraphTab caseId={kase.id} />}
+      {tab === 'graph' && (
+        <Suspense fallback={<Card><Skeleton lines={6} /></Card>}>
+          <GraphTab caseId={kase.id} />
+        </Suspense>
+      )}
       {tab === 'leads' && <LeadsTab caseId={kase.id} />}
       {tab === 'trail' && <MoneyTrailTab caseId={kase.id} />}
       {tab === 'crosscase' && <CrossCaseTab caseId={kase.id} />}
@@ -172,12 +198,19 @@ function CaseView({ caseId, tab }: { caseId: string; tab: Tab }) {
 
       <section className="panel">
         <div className="panel-head">
-          <h2>Sealed evidence</h2>
-          <span className="muted small">
-            <Lock size={12} aria-hidden /> Each file is re-hashed whenever it is opened; a mismatch blocks it.
-          </span>
+          <div>
+            <h2>Sealed evidence</h2>
+            <span className="muted small">
+              <Lock size={12} aria-hidden /> Each file is re-hashed whenever it is opened; a mismatch blocks it.
+            </span>
+          </div>
+          {evidence && <span className="chip">{evidence.length} file{evidence.length === 1 ? '' : 's'}</span>}
         </div>
-        {evidence && evidence.length === 0 && <p className="muted pad">No evidence in this case yet.</p>}
+        {evidence && evidence.length === 0 && (
+          <EmptyState icon={<FileArchive size={22} />} title="No evidence yet">
+            Upload complaint narratives, bank statements, CDRs or KYC records. Each file is hashed and sealed on arrival.
+          </EmptyState>
+        )}
         {evidence && evidence.length > 0 && (
           <div className="table-wrap">
             <table className="table">
@@ -197,12 +230,17 @@ function CaseView({ caseId, tab }: { caseId: string; tab: Tab }) {
                   return (
                     <tr key={ev.id} className={ev.integrity_status !== 'OK' ? 'row-bad' : undefined}>
                       <td>
+                        <div className="file-cell">
+                        <span className="file-icon"><FileIcon type={ev.type} /></span>
+                        <div>
                         <div className="file-name">{ev.filename}</div>
                         <div className="muted small">
                           {KIND_LABELS[ev.kind] ?? ev.kind} · {ev.type} · {formatBytes(ev.size_bytes)}
                         </div>
                         {original && <div className="dup small">Identical copy of {original.filename}: counts as one source</div>}
                         {!original && (groups.get(ev.id) ?? 0) > 1 && <div className="dup small">Has identical copies in this case</div>}
+                        </div>
+                        </div>
                       </td>
                       <td>
                         <Hash value={ev.sha256} />
@@ -232,7 +270,7 @@ function CaseView({ caseId, tab }: { caseId: string; tab: Tab }) {
             </table>
           </div>
         )}
-        {!evidence && <p className="muted pad">Loading evidence…</p>}
+        {!evidence && <Skeleton lines={4} />}
       </section>
       {canUpload && evidence && evidence.length > 0 && (
         <p className="muted small">
@@ -253,4 +291,11 @@ function BackLink() {
       <ChevronLeft size={16} aria-hidden /> Cases
     </Link>
   )
+}
+
+function FileIcon({ type }: { type: string }) {
+  const t = type.toLowerCase()
+  if (t.includes('csv') || t.includes('sheet') || t.includes('excel')) return <FileSpreadsheet size={17} aria-hidden />
+  if (t.includes('image') || t.includes('png') || t.includes('jpg')) return <Image size={17} aria-hidden />
+  return <FileText size={17} aria-hidden />
 }

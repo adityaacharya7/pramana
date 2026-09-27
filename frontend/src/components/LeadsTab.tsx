@@ -1,9 +1,11 @@
-import { Play } from 'lucide-react'
+import { ArrowRight, FileStack, FolderOpen, Lightbulb, Play } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api3, STATUS_LABELS, type LeadSummary } from '../api3'
 import { useAuth } from '../auth'
 import { ErrorNote } from './bits'
+import { RULE_META, RuleIcon } from './icons'
+import { Card, EmptyState } from './ui'
 
 const RULE_ORDER = [
   'CONVERGENCE-v1', 'LAYERING-v1', 'CASHOUT-v1', 'FACILITATOR-v1', 'FRONT-ENTITY-v1', 'SHARED-ID-v1',
@@ -67,7 +69,9 @@ export default function LeadsTab({ caseId }: { caseId: string }) {
         <section className="panel">
           <div className="panel-head">
             <div>
-              <h2>Run the rule library</h2>
+              <h2>
+                <Lightbulb size={15} aria-hidden /> Run the rule library
+              </h2>
               <span className="muted small">
                 Eight versioned rules on confirmed evidence. They produce observations for an officer to verify, never conclusions.
               </span>
@@ -107,7 +111,13 @@ export default function LeadsTab({ caseId }: { caseId: string }) {
       <ErrorNote error={error} />
       {note && <div className="note note-ok">{note}</div>}
 
-      {leads && leads.length === 0 && <p className="muted">No leads involve this case yet. Run the analysis above.</p>}
+      {leads && leads.length === 0 && (
+        <Card>
+          <EmptyState icon={<Lightbulb size={22} />} title="No leads involve this case yet">
+            Run the rule library above on this case and the related cases it shares identifiers with.
+          </EmptyState>
+        </Card>
+      )}
       {inactive > 0 && (
         <label className="small toggle">
           <input type="checkbox" checked={showInactive} onChange={(e) => setShowInactive(e.target.checked)} /> Show {inactive} lead(s) no
@@ -116,12 +126,15 @@ export default function LeadsTab({ caseId }: { caseId: string }) {
       )}
       {groups.map(([rule, items]) => (
         <section key={rule} className="review-section">
-          <h2>
-            {items[0].title} <span className="muted small mono">{rule}</span>
-          </h2>
+          <div className={`rule-head ${RULE_META[rule]?.tone ?? ''}`}>
+            <span className="rule-icon"><RuleIcon rule={rule} size={16} /></span>
+            <h2>{items[0].title}</h2>
+            <span className="rule-count">{items.length}</span>
+            <span className="extractor">{rule}</span>
+          </div>
           <div className="lead-grid">
             {items.map((l) => (
-              <Link key={l.id} to={`/leads/${l.id}`} className={`lead-card${l.active ? '' : ' lead-inactive'}`}>
+              <Link key={l.id} to={`/leads/${l.id}`} className={`lead-card ${RULE_META[rule]?.tone ?? ''}${l.active ? '' : ' lead-inactive'}`}>
                 <div className="lead-card-head">
                   <StatusChip status={l.status} />
                   {l.pending && <span className="chip chip-warn">Proposed: {STATUS_LABELS[l.pending.status]}</span>}
@@ -129,8 +142,14 @@ export default function LeadsTab({ caseId }: { caseId: string }) {
                 </div>
                 <div className="lead-subject">{l.subject?.label}</div>
                 <p className="small">{l.observation}</p>
-                <div className="muted small">
-                  {l.case_ids.join(', ')} · {l.independent_sources ?? '?'} independent source{l.independent_sources === 1 ? '' : 's'}
+                <div className="lead-card-foot">
+                  <span>
+                    <FolderOpen size={13} aria-hidden /> {l.case_ids.join(', ')}
+                  </span>
+                  <span>
+                    <FileStack size={13} aria-hidden /> {l.independent_sources ?? '?'} source{l.independent_sources === 1 ? '' : 's'}
+                    <ArrowRight size={13} aria-hidden />
+                  </span>
                 </div>
               </Link>
             ))}

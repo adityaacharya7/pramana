@@ -3,10 +3,14 @@ import { Link } from 'react-router-dom'
 import { api3, type AccessRequestRow } from '../api3'
 import { useAuth } from '../auth'
 import { ErrorNote } from '../components/bits'
+import { Avatar, EmptyState, PageHeader, useAsk, useToast } from '../components/ui'
+import { Inbox, KeyRound, Send } from 'lucide-react'
 import { formatDateTime } from '../format'
 
 export default function AccessRequests() {
   const { me } = useAuth()
+  const ask = useAsk()
+  const toast = useToast()
   const [data, setData] = useState<{ mine: AccessRequestRow[]; to_decide: AccessRequestRow[] } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const load = useCallback(() => api3.accessRequests().then(setData, (e) => setError(e.message)), [])
@@ -15,10 +19,16 @@ export default function AccessRequests() {
   }, [load])
 
   async function decide(id: string, decision: 'approve' | 'reject') {
-    const reason = window.prompt(`Reason to ${decision} (logged):`)
-    if (!reason || reason.trim().length < 3) return
+    const reason = await ask({
+      title: decision === 'approve' ? 'Approve access request' : 'Reject access request',
+      body: decision === 'approve' ? 'The requester becomes a member of the case and can open its evidence.' : 'The requester is told the request was declined.',
+      confirm: decision === 'approve' ? 'Approve' : 'Reject',
+      tone: decision === 'approve' ? 'primary' : 'danger',
+    })
+    if (!reason) return
     try {
-      await api3.decideAccess(id, decision, reason.trim())
+      await api3.decideAccess(id, decision, reason)
+      toast(decision === 'approve' ? 'Access granted and logged.' : 'Request rejected and logged.')
       load()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed.')
@@ -29,7 +39,13 @@ export default function AccessRequests() {
     <tr>
       <td className="small nowrap">{formatDateTime(r.created_at)}</td>
       <td className="small">
-        {r.requester.name} <span className="muted">({r.requester.unit})</span>
+        <span style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
+          <Avatar name={r.requester.name} size={26} />
+          <span>
+            {r.requester.name}
+            <div className="muted">{r.requester.unit}</div>
+          </span>
+        </span>
       </td>
       <td className="small">
         {r.case_id ? <Link to={`/cases/${r.case_id}`} className="case-id">{r.case_id}</Link> : <span className="muted">a case in {r.unit}</span>}
@@ -53,36 +69,49 @@ export default function AccessRequests() {
 
   return (
     <div className="page">
-      <div className="page-head">
-        <div>
-          <h1>Access requests</h1>
-          <p className="muted">
-            A match in a case outside your scope shows only the owning unit. Access is granted by that unit's supervisory officer, and
-            every request and decision is logged.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Coordination"
+        title="Access requests"
+        subtitle="A match in a case outside your scope shows only the owning unit. Access is granted by that unit’s supervisory officer, and every request and decision is logged."
+      />
       <ErrorNote error={error} />
       {me?.user.role === 'SUPERVISOR' && (
         <section className="panel">
-          <div className="panel-head"><h2>Requests for your unit's cases</h2></div>
-          {data && data.to_decide.length === 0 && <p className="muted pad">None.</p>}
+          <div className="panel-head">
+            <h2>
+              <Inbox size={17} aria-hidden /> Requests for your unit’s cases
+            </h2>
+            {data && <span className="chip chip-warn">{data.to_decide.filter((r) => r.status === 'PENDING').length} pending</span>}
+          </div>
+          {data && data.to_decide.length === 0 && (
+            <EmptyState icon={<Inbox size={22} />} title="Nothing to decide">
+              Requests from other units for your unit’s cases will appear here.
+            </EmptyState>
+          )}
           {data && data.to_decide.length > 0 && (
-            <table className="table table-dense">
+            <div className="table-wrap"><table className="table table-dense table-hover">
               <thead><tr><th>When</th><th>Requested by</th><th>Case</th><th>Reason</th><th>Status</th><th /></tr></thead>
               <tbody>{data.to_decide.map((r) => <Row key={r.id} r={r} deciding />)}</tbody>
-            </table>
+            </table></div>
           )}
         </section>
       )}
       <section className="panel">
-        <div className="panel-head"><h2>Your requests</h2></div>
-        {data && data.mine.length === 0 && <p className="muted pad">You have not requested access to any case. Requests start from the Cross-case tab of a case.</p>}
+        <div className="panel-head">
+          <h2>
+            <Send size={16} aria-hidden /> Your requests
+          </h2>
+        </div>
+        {data && data.mine.length === 0 && (
+          <EmptyState icon={<KeyRound size={22} />} title="No requests yet">
+            Requests start from the Cross-case tab of a case, when an identifier also appears in a case outside your scope.
+          </EmptyState>
+        )}
         {data && data.mine.length > 0 && (
-          <table className="table table-dense">
+          <div className="table-wrap"><table className="table table-dense table-hover">
             <thead><tr><th>When</th><th>Requested by</th><th>Case</th><th>Reason</th><th>Status</th><th /></tr></thead>
             <tbody>{data.mine.map((r) => <Row key={r.id} r={r} deciding={false} />)}</tbody>
-          </table>
+          </table></div>
         )}
       </section>
     </div>

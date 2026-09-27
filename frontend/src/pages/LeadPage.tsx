@@ -1,10 +1,15 @@
-import { CheckCircle2, ChevronLeft, Download, FileSearch, FlaskConical, ShieldAlert } from 'lucide-react'
+import {
+  ArrowRight, Check, CheckCircle2, ChevronLeft, Download, FilePen, FileSearch, FlaskConical, GitPullRequestArrow, History, Info, Package, Receipt,
+  ShieldAlert,
+} from 'lucide-react'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api3, NEXT_STATUSES, STATUS_LABELS, type Draft, type LeadDetail, type Method, type Operation, type Scenario } from '../api3'
 import { useAuth } from '../auth'
 import { ErrorNote } from '../components/bits'
+import { RULE_META, RuleIcon } from '../components/icons'
 import { StatusChip } from '../components/LeadsTab'
+import { Card, Skeleton, useToast } from '../components/ui'
 import SourceDrawer, { type SourceRef } from '../components/SourceDrawer'
 import { formatDateTime, formatINR } from '../format'
 
@@ -15,6 +20,7 @@ export default function LeadPageRoute() {
 
 function LeadPage({ leadId }: { leadId: string }) {
   const { me } = useAuth()
+  const toast = useToast()
   const [lead, setLead] = useState<LeadDetail | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [source, setSource] = useState<SourceRef | null>(null)
@@ -25,115 +31,160 @@ function LeadPage({ leadId }: { leadId: string }) {
   const closeSource = useCallback(() => setSource(null), [])
 
   if (error && !lead) return <div className="page"><ErrorNote error={error} /></div>
-  if (!lead) return <div className="page muted">Loading lead…</div>
+  if (!lead)
+    return (
+      <div className="page">
+        <Card>
+          <Skeleton lines={5} />
+        </Card>
+      </div>
+    )
   const r = lead.receipt
   const role = me?.user.role
   const back = lead.case_ids[0]
+  const tone = RULE_META[lead.rule_id]?.tone ?? ''
+  const exportAs = (kind: 'json' | 'pdf') =>
+    (kind === 'json' ? api3.exportJson(lead.id) : api3.exportPdf(lead.id)).then(
+      () => {
+        toast(kind === 'json' ? 'Re-run bundle exported and logged.' : 'Handover pack exported and logged.')
+        load()
+      },
+      (e) => setError(e.message),
+    )
 
   return (
     <div className="page">
       <Link to={`/cases/${back}/leads`} className="back">
         <ChevronLeft size={16} aria-hidden /> Leads in {back}
       </Link>
-      <div className="case-head">
+      <div className={`case-head ${tone}`} style={{ gridTemplateColumns: '1fr' }}>
         <div>
           <div className="case-kicker">
+            <span className="rule-icon"><RuleIcon rule={lead.rule_id} size={16} /></span>
             <StatusChip status={lead.status} />
-            <span className="muted mono small">{lead.rule_id}</span>
+            <span className="extractor">{lead.rule_id}</span>
             {!lead.active && <span className="chip chip-warn">Not produced by the latest analysis</span>}
           </div>
           <h1>{lead.title}</h1>
           <p className="lead-subject-lg">{lead.subject?.label}</p>
-          <p>{lead.observation}</p>
-          <p className="muted small">
-            Cases: {lead.case_ids.join(', ')} · analysed with {lead.analysis_cases.join(', ')}
-          </p>
-        </div>
-        <div className="members">
-          <h3>Handover</h3>
-          <p className="muted small">Export the Evidence Receipt, estimates and a re-run bundle another officer can reproduce offline.</p>
-          <div className="row-actions">
-            <button className="btn btn-small" disabled={!lead.reproduced_now} onClick={() => api3.exportJson(lead.id).then(load, (e) => setError(e.message))}>
-              <Download size={14} aria-hidden /> Bundle (JSON)
-            </button>
-            <button className="btn btn-small" disabled={!lead.reproduced_now} onClick={() => api3.exportPdf(lead.id).then(load, (e) => setError(e.message))}>
-              <Download size={14} aria-hidden /> Pack (PDF)
-            </button>
-          </div>
+          <p style={{ color: 'var(--text-2)', maxWidth: '90ch' }}>{lead.observation}</p>
         </div>
       </div>
       <ErrorNote error={error} />
 
-      <Lifecycle lead={lead} role={role} onDone={load} onError={setError} />
+      <div className="lead-layout">
+        <div className="lead-main">
+          {r ? (
+            <Card
+              icon={<Receipt size={17} />}
+              title="Evidence Receipt"
+              subtitle={`${r.rule.id} v${r.rule.version} · ${r.independent_sources} independent source${r.independent_sources === 1 ? '' : 's'}`}
+              flush
+            >
+              <div className="receipt">
+                <div>
+                  <h3>Supporting records</h3>
+                  <ul className="source-list">
+                    {r.supporting_records.map((s, i) => (
+                      <li key={i}>
+                        <button className="source-link" onClick={() => setSource({ evidenceId: s.file_id, filename: s.filename ?? '', spans: [s.span], title: s.label })}>
+                          <span className="small">
+                            <FileSearch size={13} aria-hidden /> <span className="case-id">{s.case_id}</span> · {s.filename} · <span className="muted">{s.kind}</span>
+                          </span>
+                          <span className="small" style={{ fontWeight: 550 }}>{s.label}</span>
+                          {s.note && <span className="muted small">“{s.note}”</span>}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="muted small" style={{ marginTop: 10 }}>{r.what_could_make_this_wrong.note}</p>
+                </div>
+                <div className="receipt-side">
+                  <Block title="Unknowns" items={r.unknowns} />
+                  <div className="wrong">
+                    <h3>
+                      <ShieldAlert size={15} aria-hidden /> What could make this wrong?
+                    </h3>
+                    <p className="small"><strong>Ordinary explanation.</strong> {r.what_could_make_this_wrong.ordinary_explanation}</p>
+                    <Block title="Contradictions" items={r.what_could_make_this_wrong.contradictions} />
+                    <Block title="Records that would tell the two apart" items={r.what_could_make_this_wrong.records_that_would_distinguish} />
+                  </div>
+                  <div>
+                    <h3>Next verification step</h3>
+                    <div className="alert alert-info">
+                      <ArrowRight size={16} aria-hidden />
+                      <div className="alert-body">{r.next_verification_step}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ) : (
+            <div className="note note-bad">This lead is not produced by the current analysis of its cases, so no live receipt is shown.</div>
+          )}
 
-      {r ? (
-        <section className="panel">
-          <div className="panel-head">
-            <h2>Evidence Receipt</h2>
-            <span className="muted small">
-              {r.rule.id} v{r.rule.version} · {r.independent_sources} independent source{r.independent_sources === 1 ? '' : 's'}
-            </span>
-          </div>
-          <div className="receipt">
-            <div>
-              <h3>Supporting records</h3>
-              <ul className="source-list">
-                {r.supporting_records.map((s, i) => (
-                  <li key={i}>
-                    <button className="source-link" onClick={() => setSource({ evidenceId: s.file_id, filename: s.filename ?? '', spans: [s.span], title: s.label })}>
-                      <span className="small">
-                        <FileSearch size={12} aria-hidden /> {s.case_id} · {s.filename} · <span className="muted">{s.kind}</span>
-                      </span>
-                      <span className="small">{s.label}</span>
-                      {s.note && <span className="muted small">“{s.note}”</span>}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              <p className="muted small">{r.what_could_make_this_wrong.note}</p>
+          {(r || lead.scenarios.length > 0) && <Challenge lead={lead} role={role} onDone={load} onError={setError} />}
+          {(r || lead.drafts.length > 0) && <Drafts lead={lead} role={role} onDone={load} onError={setError} />}
+
+          <Card icon={<History size={17} />} title="Decision trail" subtitle="Every step on this lead, from the hash-chained audit log" flush>
+            <ol className="history">
+              {lead.history.map((h) => (
+                <li key={h.seq}>
+                  <span className="history-dot" />
+                  <div className="history-body">
+                    <span className="chip chip-neutral">{h.action}</span>
+                    <span className="mono small">{h.actor}</span>
+                    <span className="muted small">
+                      {formatDateTime(h.ts)} · entry #{h.seq}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </Card>
+        </div>
+
+        <aside className="lead-aside">
+          <Lifecycle lead={lead} role={role} onDone={load} onError={setError} />
+          <Card icon={<Package size={17} />} title="Handover">
+            <p className="muted small">
+              Export the Evidence Receipt, estimates and a re-run bundle another officer can reproduce offline.
+            </p>
+            <div className="aside-actions">
+              <button className="btn btn-primary btn-block" disabled={!lead.reproduced_now} onClick={() => exportAs('pdf')}>
+                <Download size={15} aria-hidden /> Handover pack (PDF)
+              </button>
+              <button className="btn btn-block" disabled={!lead.reproduced_now} onClick={() => exportAs('json')}>
+                <Download size={15} aria-hidden /> Re-run bundle (JSON)
+              </button>
             </div>
-            <div className="receipt-side">
-              <Block title="Unknowns" items={r.unknowns} />
-              <div className="wrong">
-                <h3>
-                  <ShieldAlert size={15} aria-hidden /> What could make this wrong?
-                </h3>
-                <p className="small"><strong>Ordinary explanation.</strong> {r.what_could_make_this_wrong.ordinary_explanation}</p>
-                <Block title="Contradictions" items={r.what_could_make_this_wrong.contradictions} />
-                <Block title="Records that would tell the two apart" items={r.what_could_make_this_wrong.records_that_would_distinguish} />
+          </Card>
+          <Card icon={<Info size={17} />} title="About this lead">
+            <dl className="kv">
+              <div>
+                <dt>Rule</dt>
+                <dd className="mono small">{lead.rule_id}</dd>
               </div>
               <div>
-                <h3>Next verification step</h3>
-                <p className="small">{r.next_verification_step}</p>
+                <dt>Cases</dt>
+                <dd>{lead.case_ids.map((c) => <Link key={c} to={`/cases/${c}`} className="case-id" style={{ marginLeft: 6 }}>{c}</Link>)}</dd>
               </div>
-            </div>
-          </div>
-        </section>
-      ) : (
-        <div className="note note-bad">This lead is not produced by the current analysis of its cases, so no live receipt is shown.</div>
-      )}
-
-      {(r || lead.scenarios.length > 0) && <Challenge lead={lead} role={role} onDone={load} onError={setError} />}
-      {(r || lead.drafts.length > 0) && <Drafts lead={lead} role={role} onDone={load} onError={setError} />}
-
-      <section className="panel">
-        <div className="panel-head">
-          <h2>Decision trail</h2>
-          <span className="muted small">Every step on this lead, from the audit log</span>
-        </div>
-        <table className="table table-dense">
-          <tbody>
-            {lead.history.map((h) => (
-              <tr key={h.seq}>
-                <td className="num mono">#{h.seq}</td>
-                <td className="nowrap small">{formatDateTime(h.ts)}</td>
-                <td className="mono small">{h.actor}</td>
-                <td><span className="chip chip-neutral">{h.action}</span></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+              <div>
+                <dt>Analysed with</dt>
+                <dd className="small">{lead.analysis_cases.join(', ')}</dd>
+              </div>
+              <div>
+                <dt>Independent sources</dt>
+                <dd>{lead.independent_sources ?? '—'}</dd>
+              </div>
+              <div>
+                <dt>Reproduced now</dt>
+                <dd>{lead.reproduced_now ? <span className="ok"><CheckCircle2 size={14} aria-hidden /> Yes</span> : <span className="bad">No</span>}</dd>
+              </div>
+            </dl>
+          </Card>
+        </aside>
+      </div>
       {source && <SourceDrawer source={source} onClose={closeSource} />}
     </div>
   )
@@ -154,7 +205,36 @@ function Block({ title, items }: { title: string; items: string[] }) {
 
 type Props = { lead: LeadDetail; role?: string; onDone: () => void; onError: (e: string | null) => void }
 
+const MAIN_PATH = ['DETECTED', 'UNDER_VERIFICATION'] as const
+const OUTCOMES = ['VERIFIED', 'DISMISSED', 'NEEDS_EVIDENCE'] as const
+
+function Stepper({ status }: { status: string }) {
+  const idx = MAIN_PATH.indexOf(status as (typeof MAIN_PATH)[number])
+  const outcome = (OUTCOMES as readonly string[]).includes(status)
+  const cls = (i: number) => (outcome || i < idx ? 'step-done' : i === idx ? 'step-current' : '')
+  return (
+    <ol className="stepper">
+      {MAIN_PATH.map((s, i) => (
+        <li key={s} className={cls(i)}>
+          <span className="step-dot">{(outcome || i < idx) && <Check size={12} strokeWidth={3} />}</span>
+          <span>{STATUS_LABELS[s]}</span>
+        </li>
+      ))}
+      <li className={outcome ? 'step-current' : ''}>
+        <span className="step-dot" />
+        <div>
+          <span>Outcome</span>
+          <div className="step-branch">
+            {OUTCOMES.map((o) => (o === status ? <StatusChip key={o} status={o} /> : <span key={o} className="chip">{STATUS_LABELS[o]}</span>))}
+          </div>
+        </div>
+      </li>
+    </ol>
+  )
+}
+
 function Lifecycle({ lead, role, onDone, onError }: Props) {
+  const toast = useToast()
   const [to, setTo] = useState('')
   const [reason, setReason] = useState('')
   const [busy, setBusy] = useState(false)
@@ -165,6 +245,11 @@ function Lifecycle({ lead, role, onDone, onError }: Props) {
       await api3.transition(lead.id, action, reason.trim(), action === 'propose' ? to : undefined)
       setReason('')
       setTo('')
+      toast(
+        action === 'propose'
+          ? role === 'SUPERVISOR' ? 'Status changed.' : 'Change proposed for approval.'
+          : action === 'approve' ? 'Change approved.' : 'Proposal rejected.',
+      )
       onDone()
     } catch (e) {
       onError(e instanceof Error ? e.message : 'Failed.')
@@ -174,45 +259,43 @@ function Lifecycle({ lead, role, onDone, onError }: Props) {
   }
   const canAct = role === 'IO' || role === 'SUPERVISOR'
   return (
-    <section className="panel">
-      <div className="panel-head">
-        <h2>Lead status</h2>
-        <span className="muted small">
-          Detected → Under verification → Verified / Dismissed / Needs evidence. An IO proposes; a supervisory officer approves. Every change needs a reason.
-        </span>
-      </div>
-      <div className="issue-body">
-        {lead.pending && (
-          <div className="note note-warn">
-            {lead.pending.by} proposed <strong>{STATUS_LABELS[lead.pending.status]}</strong>: {lead.pending.reason}
-          </div>
-        )}
-        {canAct && (
-          <div className="decide-row">
-            {!lead.pending && (
-              <select value={to} onChange={(e) => setTo(e.target.value)} aria-label="New status">
-                <option value="">Move to…</option>
-                {(NEXT_STATUSES[lead.status] ?? []).map((s) => (
-                  <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-                ))}
-              </select>
-            )}
-            <input placeholder="Reason (required, logged)" value={reason} onChange={(e) => setReason(e.target.value)} aria-label="Reason" />
-            {!lead.pending && (
-              <button className="btn btn-small" disabled={busy || !to || reason.trim().length < 3} onClick={() => act('propose')}>
-                {role === 'SUPERVISOR' ? 'Change status' : 'Propose'}
-              </button>
-            )}
-            {lead.pending && role === 'SUPERVISOR' && (
-              <>
-                <button className="btn btn-small btn-primary" disabled={busy || reason.trim().length < 3} onClick={() => act('approve')}>Approve</button>
-                <button className="btn btn-small btn-ghost" disabled={busy || reason.trim().length < 3} onClick={() => act('reject')}>Reject</button>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-    </section>
+    <Card icon={<GitPullRequestArrow size={17} />} title="Lead status" subtitle="An IO proposes; a supervisory officer approves.">
+      <Stepper status={lead.status} />
+      {lead.pending && (
+        <div className="note note-warn">
+          <span>
+            <strong>{lead.pending.by}</strong> proposed <strong>{STATUS_LABELS[lead.pending.status]}</strong>: {lead.pending.reason}
+          </span>
+        </div>
+      )}
+      {canAct && (
+        <div className="aside-actions">
+          {!lead.pending && (
+            <select value={to} onChange={(e) => setTo(e.target.value)} aria-label="New status">
+              <option value="">Move to…</option>
+              {(NEXT_STATUSES[lead.status] ?? []).map((s) => (
+                <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+              ))}
+            </select>
+          )}
+          {(!lead.pending || role === 'SUPERVISOR') && (
+            <textarea rows={2} placeholder="Reason (required, logged)" value={reason} onChange={(e) => setReason(e.target.value)} aria-label="Reason" />
+          )}
+          {!lead.pending && (
+            <button className="btn btn-primary btn-block" disabled={busy || !to || reason.trim().length < 3} onClick={() => act('propose')}>
+              {role === 'SUPERVISOR' ? 'Change status' : 'Propose change'}
+            </button>
+          )}
+          {lead.pending && role === 'SUPERVISOR' && (
+            <div className="row-actions">
+              <button className="btn btn-primary" style={{ flex: 1 }} disabled={busy || reason.trim().length < 3} onClick={() => act('approve')}>Approve</button>
+              <button className="btn" style={{ flex: 1 }} disabled={busy || reason.trim().length < 3} onClick={() => act('reject')}>Reject</button>
+            </div>
+          )}
+          {lead.pending && role === 'IO' && <p className="muted small">Awaiting a supervisory officer’s decision.</p>}
+        </div>
+      )}
+    </Card>
   )
 }
 
@@ -260,14 +343,12 @@ function Challenge({ lead, role, onDone, onError }: Props) {
   }
 
   return (
-    <section className="panel">
-      <div className="panel-head">
-        <h2>
-          <FlaskConical size={16} aria-hidden /> Challenge Mode
-        </h2>
-        <span className="muted small">Runs on a scenario copy. The live case and its approved drafts change only when a reviewed change is applied.</span>
-      </div>
-      <div className="issue-body">
+    <Card
+      icon={<FlaskConical size={17} />}
+      title="Challenge Mode"
+      subtitle="Runs on a scenario copy. The live case and its approved drafts change only when a reviewed change is applied."
+    >
+      <div style={{ display: 'grid', gap: 12 }}>
         {!lead.reproduced_now && (
           <p className="small muted">This lead is no longer produced, so new scenarios cannot be run on it. Earlier scenarios are shown below.</p>
         )}
@@ -337,7 +418,7 @@ function Challenge({ lead, role, onDone, onError }: Props) {
           </p>
         )}
       </div>
-    </section>
+    </Card>
   )
 }
 
@@ -444,12 +525,12 @@ function Drafts({ lead, role, onDone, onError }: Props) {
   }
 
   return (
-    <section className="panel">
-      <div className="panel-head">
-        <h2>Amount &amp; Draft Assistant</h2>
-        <span className="muted small">One method per draft set; every figure is an estimate; drafts are never sent by the system.</span>
-      </div>
-      <div className="issue-body">
+    <Card
+      icon={<FilePen size={17} />}
+      title="Amount & Draft Assistant"
+      subtitle="One method per draft set; every figure is an estimate; drafts are never sent by the system."
+    >
+      <div style={{ display: 'grid', gap: 12 }}>
         {role === 'IO' && (
           <div className="decide-row">
             <select value={method} onChange={(e) => setMethod(e.target.value as Method)} aria-label="Attribution method">
@@ -510,6 +591,6 @@ function Drafts({ lead, role, onDone, onError }: Props) {
           </div>
         ))}
       </div>
-    </section>
+    </Card>
   )
 }

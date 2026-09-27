@@ -1,10 +1,11 @@
-import { Download, Link2, Search, ShieldAlert, ShieldCheck, Upload } from 'lucide-react'
+import { Download, Link2, ScrollText, Search, ShieldAlert, ShieldCheck, Upload } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { api, type LedgerEntry, type LedgerReport } from '../api'
 import { api3 } from '../api3'
 import { useAuth } from '../auth'
 import { ErrorNote } from '../components/bits'
 import { formatDateTime, shortHash } from '../format'
+import { Card, EmptyState, PageHeader, Skeleton } from '../components/ui'
 
 const SUMMARY_KEYS = ['filename', 'attempted', 'reason', 'username', 'stage', 'fir_no', 'status', 'dataset', 'role', 'method'] as const
 
@@ -93,24 +94,25 @@ export default function AuditLog() {
 
   return (
     <div className="page">
-      <div className="page-head">
-        <div>
-          <h1>Audit log</h1>
-          <p className="muted">Append-only and hash-chained: every entry commits to the one before it.</p>
-        </div>
-        <button className="btn btn-primary" onClick={verify} disabled={checking}>
-          <Link2 size={16} aria-hidden /> {checking ? 'Verifying…' : 'Verify chain'}
-        </button>
-      </div>
-      <div className="row-actions">
-        <button className="btn btn-small btn-ghost" onClick={downloadCheckpoint}>
-          <Download size={14} aria-hidden /> Download latest signed checkpoint
-        </button>
-        <label className="btn btn-small btn-ghost">
-          <Upload size={14} aria-hidden /> Verify against a checkpoint you kept
-          <input type="file" accept=".json" hidden onChange={(e) => verifyFile(e.target.files?.[0])} />
-        </label>
-      </div>
+      <PageHeader
+        eyebrow="Integrity"
+        title="Audit log"
+        subtitle="Append-only and hash-chained: every entry commits to the one before it. Signed checkpoints let you prove nothing was rewritten."
+        actions={
+          <>
+            <button className="btn" onClick={downloadCheckpoint}>
+              <Download size={15} aria-hidden /> Signed checkpoint
+            </button>
+            <label className="btn">
+              <Upload size={15} aria-hidden /> Verify against checkpoint
+              <input type="file" accept=".json" hidden onChange={(e) => verifyFile(e.target.files?.[0])} />
+            </label>
+            <button className="btn btn-primary" onClick={verify} disabled={checking}>
+              <Link2 size={15} aria-hidden /> {checking ? 'Verifying…' : 'Verify chain'}
+            </button>
+          </>
+        }
+      />
       <ErrorNote error={error} />
 
       {report && (
@@ -138,15 +140,19 @@ export default function AuditLog() {
       )}
 
       {!canRead && (
-        <div className="empty">
-          <p>Your role can verify the chain but not read its entries. Auditors and supervisors read the trail.</p>
-        </div>
+        <Card>
+          <EmptyState icon={<ShieldCheck size={22} />} title="Entries are not visible to your role">
+            Your role can verify the chain but not read its entries. Auditors and supervisors read the trail.
+          </EmptyState>
+        </Card>
       )}
 
       {canRead && (
         <section className="panel">
           <div className="panel-head">
-            <h2>Entries</h2>
+            <h2>
+              <ScrollText size={17} aria-hidden /> Entries {entries && <span className="chip">{shown?.length ?? 0}</span>}
+            </h2>
             <label className="search">
               <Search size={16} aria-hidden />
               <input placeholder="Filter by action, actor, case" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Filter entries" />
@@ -186,7 +192,7 @@ export default function AuditLog() {
               </table>
             </div>
           )}
-          {!entries && !error && <p className="muted pad">Loading entries…</p>}
+          {!entries && !error && <Skeleton lines={6} />}
         </section>
       )}
     </div>

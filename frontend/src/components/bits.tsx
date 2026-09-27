@@ -27,7 +27,7 @@ export function Hash({ value, full = false }: { value: string; full?: boolean })
   const [copied, setCopied] = useState(false)
   return (
     <span className="hash">
-      <code title={value}>{full ? value : shortHash(value)}</code>
+      <code title={value} className={full ? 'hash-full' : undefined}>{full ? value : shortHash(value)}</code>
       <button
         className="icon-btn"
         aria-label="Copy SHA-256"

@@ -1,7 +1,10 @@
+import { ArrowLeftRight, Banknote, Landmark, Layers, LogOut, Users } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { api3, type Method, type MoneyTrail } from '../api3'
 import { formatDateTime, formatINR } from '../format'
 import { ErrorNote } from './bits'
+import FlowDiagram, { CASE_COLORS } from './FlowDiagram'
+import { Card, Metric, Skeleton } from './ui'
 
 const METHODS: { id: Method; label: string }[] = [
   { id: 'fifo', label: 'FIFO' },
@@ -32,125 +35,162 @@ export default function MoneyTrailTab({ caseId }: { caseId: string }) {
   }, [t])
 
   if (error) return <ErrorNote error={error} />
-  if (!data || !t) return <p className="muted pad">Tracing…</p>
+  if (!data || !t)
+    return (
+      <Card>
+        <Skeleton lines={6} />
+      </Card>
+    )
+
+  const totals = Object.values(t.by_case).reduce(
+    (a, v) => ({ loss: a.loss + v.loss, held: a.held + v.held, exited: a.exited + v.exited, missing: a.missing + v.missing_statement }),
+    { loss: 0, held: 0, exited: 0, missing: 0 },
+  )
+  const methodSwitch = (
+    <div className="seg" role="tablist" aria-label="Attribution method">
+      {METHODS.map((m) => (
+        <button key={m.id} role="tab" aria-selected={method === m.id} className={`seg-btn${method === m.id ? ' seg-on' : ''}`} onClick={() => setMethod(m.id)}>
+          {m.label}
+        </button>
+      ))}
+    </div>
+  )
 
   return (
     <div className="review">
-      <section className="panel">
-        <div className="panel-head">
-          <div>
-            <h2>Money trail</h2>
-            <span className="muted small">Cases traced together: {data.cases.join(', ')}</span>
-          </div>
-          <div className="seg" role="tablist" aria-label="Attribution method">
-            {METHODS.map((m) => (
-              <button key={m.id} className={`seg-btn${method === m.id ? ' seg-on' : ''}`} onClick={() => setMethod(m.id)}>
-                {m.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="issue-body">
+      <div className="metrics">
+        <Metric label="Victim loss" value={formatINR(totals.loss)} hint={`${t.seeds.length} payment${t.seeds.length === 1 ? '' : 's'} across ${data.cases.length} case${data.cases.length === 1 ? '' : 's'}`} />
+        <Metric label="Still held" value={formatINR(totals.held)} hint="at accounts with a statement" tone="ok" />
+        <Metric label="Left the trail" value={formatINR(totals.exited)} hint="cash, crypto, merchant payments" tone="bad" />
+        <Metric label="Onward unknown" value={formatINR(totals.missing)} hint="at accounts with no statement" tone={totals.missing > 0 ? 'warn' : undefined} />
+      </div>
+
+      <Card
+        icon={<ArrowLeftRight size={17} />}
+        title="Money trail"
+        subtitle={`Cases traced together: ${data.cases.join(', ')}`}
+        actions={methodSwitch}
+        flush
+      >
+        <div className="issue-body" style={{ paddingBottom: 4 }}>
           <p className="small">{t.method_text}</p>
-          <p className="muted small">{data.note}</p>
           {!t.reconciles && (
             <div className="note note-bad small">
-              Some records do not reconcile; figures for these accounts are uncertain: {t.issues.map((i) => `${label(i.party)} (${i.kind.replace(/_/g, ' ')})`).join('; ')}
+              Some records do not reconcile; figures for these accounts are uncertain:{' '}
+              {t.issues.map((i) => `${label(i.party)} (${i.kind.replace(/_/g, ' ')})`).join('; ')}
             </div>
           )}
         </div>
-      </section>
+        <FlowDiagram t={t} label={label} cases={data.cases} />
+        <div className="flow-legend">
+          {data.cases.map((c, i) => (
+            <span key={c}>
+              <i style={{ background: CASE_COLORS[i % CASE_COLORS.length], borderColor: CASE_COLORS[i % CASE_COLORS.length] }} /> {c} money
+            </span>
+          ))}
+          <span>
+            <i style={{ background: 'var(--accent-soft)', borderColor: 'var(--accent)' }} /> holds funds
+          </span>
+          <span>
+            <i style={{ background: 'var(--bad-bg)', borderColor: 'var(--bad)' }} /> exit point
+          </span>
+          <span className="muted">{data.note}</span>
+        </div>
+      </Card>
 
       <div className="stat-row">
         {Object.entries(t.by_case).map(([c, v]) => (
-          <div key={c} className="stat">
+          <div key={c} className="stat" style={{ borderTop: `3px solid ${CASE_COLORS[Math.max(data.cases.indexOf(c), 0) % CASE_COLORS.length]}` }}>
             <span className="stat-l">{c} · victim loss</span>
             <span className="stat-n">{formatINR(v.loss)}</span>
             <span className="stat-l">
               held {formatINR(v.held)} · left the trail {formatINR(v.exited)}
-              {v.missing_statement > 0 && ` · at accounts with no statement ${formatINR(v.missing_statement)}`}
+              {v.missing_statement > 0 && ` · no statement ${formatINR(v.missing_statement)}`}
             </span>
           </div>
         ))}
       </div>
 
-      <section className="panel">
-        <div className="panel-head"><h2>Victims' payments</h2></div>
-        <table className="table table-dense">
-          <thead><tr><th>When</th><th>Case</th><th>From</th><th>To</th><th className="num">Amount</th></tr></thead>
-          <tbody>
-            {t.seeds.map((s) => (
-              <tr key={s.event}>
-                <td className="nowrap small">{formatDateTime(s.ts)}</td>
-                <td>{s.case_id}</td>
-                <td className="small">{label(s.victim)}</td>
-                <td className="small">{label(s.to)}</td>
-                <td className="num">{formatINR(s.amount)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-
-      <section className="panel">
-        <div className="panel-head">
-          <h2>Where the money is estimated to be</h2>
-          <span className="muted small">Each victim rupee is counted at exactly one place</span>
-        </div>
-        <table className="table table-dense">
-          <thead><tr><th>Account</th><th>From case</th><th className="num">Estimate ({method})</th><th className="num">Range across methods</th><th>As of</th></tr></thead>
-          <tbody>
-            {t.holdings.map((h, i) => {
-              const s = data.trail.spread[h.party]
-              return (
-                <tr key={i} className={h.uncertain ? 'row-bad' : undefined}>
-                  <td className="small">{label(h.party)} <span className="muted">layer {h.layer}</span></td>
-                  <td>{h.tag.split(':')[1]}</td>
-                  <td className="num">{h.uncertain ? <span className="bad">insufficient evidence</span> : formatINR(h.amount)}</td>
-                  <td className="num small">{s ? `${formatINR(s.min)} – ${formatINR(s.max)}` : ''}</td>
-                  <td className="small">{h.has_statement ? `${h.as_of?.slice(0, 10)} (statement end)` : 'no statement — onward movement unknown'}</td>
+      <Card icon={<Users size={17} />} title="Victims’ payments" flush>
+        <div className="table-wrap">
+          <table className="table table-dense table-hover">
+            <thead><tr><th>When</th><th>Case</th><th>From</th><th>To</th><th className="num">Amount</th></tr></thead>
+            <tbody>
+              {t.seeds.map((s) => (
+                <tr key={s.event}>
+                  <td className="nowrap small">{formatDateTime(s.ts)}</td>
+                  <td className="case-id">{s.case_id}</td>
+                  <td className="small">{label(s.victim)}</td>
+                  <td className="small">{label(s.to)}</td>
+                  <td className="num">{formatINR(s.amount)}</td>
                 </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </section>
-
-      <section className="panel">
-        <div className="panel-head"><h2>Exit points</h2><span className="muted small">Money that left the banking trail</span></div>
-        <table className="table table-dense">
-          <thead><tr><th>When</th><th>From</th><th>How</th><th className="num">Victim share ({method})</th></tr></thead>
-          <tbody>
-            {t.exits.map((x, i) => (
-              <tr key={i}>
-                <td className="nowrap small">{formatDateTime(x.ts)}</td>
-                <td className="small">{label(x.party)}</td>
-                <td className="small">{x.kind}{x.kind.startsWith('merchant') && ' (purpose unverified)'} → {label(x.to)}</td>
-                <td className="num">{formatINR(x.amount)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-
-      <section className="panel">
-        <div className="panel-head"><h2>Layers</h2><span className="muted small">Hops away from the victim's account</span></div>
-        <div className="issue-body">
-          {layers.map(([n, flows]) => (
-            <div key={n}>
-              <h4>Layer {n}</h4>
-              <ul className="bullets">
-                {flows.map((f, i) => (
-                  <li key={i} className="small">
-                    {formatDateTime(f.ts)} · {label(f.from)} → {label(f.to)} · {formatINR(f.amount)} of case {f.tag.split(':')[1]} money
-                    {f.exit && <span className="muted"> ({f.exit})</span>}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+              ))}
+            </tbody>
+          </table>
         </div>
-      </section>
+      </Card>
+
+      <Card icon={<Landmark size={17} />} title="Where the money is estimated to be" subtitle="Each victim rupee is counted at exactly one place" flush>
+        <div className="table-wrap">
+          <table className="table table-dense table-hover">
+            <thead><tr><th>Account</th><th>From case</th><th className="num">Estimate ({method})</th><th className="num">Range across methods</th><th>As of</th></tr></thead>
+            <tbody>
+              {t.holdings.map((h, i) => {
+                const s = data.trail.spread[h.party]
+                return (
+                  <tr key={i} className={h.uncertain ? 'row-bad' : undefined}>
+                    <td className="small">{label(h.party)} <span className="chip">layer {h.layer}</span></td>
+                    <td className="case-id">{h.tag.split(':')[1]}</td>
+                    <td className="num">{h.uncertain ? <span className="bad">insufficient evidence</span> : <strong>{formatINR(h.amount)}</strong>}</td>
+                    <td className="num small muted">{s ? `${formatINR(s.min)} – ${formatINR(s.max)}` : ''}</td>
+                    <td className="small">{h.has_statement ? `${h.as_of?.slice(0, 10)} (statement end)` : <span className="chip chip-warn">no statement — onward movement unknown</span>}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      <Card icon={<LogOut size={17} />} title="Exit points" subtitle="Money that left the banking trail" flush>
+        <div className="table-wrap">
+          <table className="table table-dense table-hover">
+            <thead><tr><th>When</th><th>From</th><th>How</th><th className="num">Victim share ({method})</th></tr></thead>
+            <tbody>
+              {t.exits.map((x, i) => (
+                <tr key={i}>
+                  <td className="nowrap small">{formatDateTime(x.ts)}</td>
+                  <td className="small">{label(x.party)}</td>
+                  <td className="small">
+                    <span className={`chip ${x.kind.startsWith('cash') ? 'chip-bad' : x.kind.startsWith('crypto') ? 'chip-warn' : ''}`}>
+                      {x.kind.startsWith('cash') && <Banknote size={12} aria-hidden />}
+                      {x.kind}
+                    </span>
+                    {x.kind.startsWith('merchant') && <span className="muted"> purpose unverified</span>} → {label(x.to)}
+                  </td>
+                  <td className="num">{formatINR(x.amount)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      <Card icon={<Layers size={17} />} title="Layers" subtitle="Hops away from the victim’s account">
+        {layers.map(([n, flows]) => (
+          <div key={n}>
+            <h4 style={{ marginBottom: 4 }}>Layer {n}</h4>
+            <ul className="bullets">
+              {flows.map((f, i) => (
+                <li key={i} className="small">
+                  {formatDateTime(f.ts)} · {label(f.from)} → {label(f.to)} · <strong>{formatINR(f.amount)}</strong> of case {f.tag.split(':')[1]} money
+                  {f.exit && <span className="muted"> ({f.exit})</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </Card>
     </div>
   )
 }

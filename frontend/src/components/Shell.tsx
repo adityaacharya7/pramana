@@ -19,7 +19,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth'
 import { applyTheme, effectiveTheme, type Theme } from '../theme'
-import { AshokaEmblem, DigitalIndiaLogo } from './Emblems'
+import { PramanaLogo } from './Emblems'
 import { HelplineModal, NotificationPopover } from './GovModals'
 
 const TAB_NAMES: Record<string, string> = {
@@ -195,25 +195,22 @@ export default function Shell({ children }: { children?: ReactNode }) {
 
   return (
     <div className="gov-shell-wrapper">
-      {/* 1. TOP WHITE GOVERNMENT HEADER */}
+      {/* 1. TOP PRAMANA PROTOTYPE INSTITUTIONAL HEADER */}
       <header className="gov-header" role="banner">
         <div className="gov-header-left">
-          {/* Ashoka Lion Capital */}
-          <div className="gov-emblem-wrap">
-            <AshokaEmblem size={46} />
-            <div className="gov-emblem-text">
-              <span className="gov-emblem-hi">भारत सरकार</span>
-              <span className="gov-emblem-en">Government of India</span>
+          {/* PRAMANA Brand Title & Independent Prototype Identity */}
+          <Link to="/cases" className="gov-brand-wrap" aria-label="PRAMANA Home">
+            <PramanaLogo size={44} className="gov-brand-icon" />
+            <div className="gov-brand-text">
+              <div className="gov-brand-title-row">
+                <span className="gov-brand-en">PRAMANA</span>
+                <span className="gov-brand-tag">SIH Prototype</span>
+              </div>
+              <span className="gov-brand-hi">प्रमाण — Investigation Review System</span>
+              <span className="gov-brand-disclaimer">
+                Independent student prototype · Not an official Government of India website
+              </span>
             </div>
-          </div>
-
-          <div className="gov-header-divider" aria-hidden />
-
-          {/* PRAMANA Brand Title */}
-          <Link to="/cases" className="gov-brand" aria-label="PRAMANA Home">
-            <span className="gov-brand-en">PRAMANA</span>
-            <span className="gov-brand-hi">प्रमाण</span>
-            <span className="gov-brand-sub">Investigation Review System</span>
           </Link>
         </div>
 
@@ -323,8 +320,11 @@ export default function Shell({ children }: { children?: ReactNode }) {
             )}
           </div>
 
-          {/* Digital India logo */}
-          <DigitalIndiaLogo height={38} className="gov-digital-india" />
+          {/* SIH Prototype disclaimer badge */}
+          <div className="gov-header-proto-pill" title="SIH 2026 Prototype | For Demonstration Only">
+            <span className="gov-header-proto-label">SIH 2026 Prototype</span>
+            <span className="gov-header-proto-sub">For Demonstration Only</span>
+          </div>
         </div>
       </header>
 
@@ -457,6 +457,22 @@ export default function Shell({ children }: { children?: ReactNode }) {
           {children ?? <Outlet />}
         </main>
       </div>
+
+      {/* 4. INSTITUTIONAL FOOTER WITH PROTOTYPE DISCLAIMER */}
+      <footer className="gov-app-footer" role="contentinfo">
+        <div className="gov-footer-left">
+          <span className="gov-footer-brand">PRAMANA (प्रमाण)</span>
+          <span className="gov-footer-sep">·</span>
+          <span className="gov-footer-sub">Investigation Review System</span>
+        </div>
+        <div className="gov-footer-right">
+          <span className="gov-footer-disclaimer">
+            <strong>SIH 2026 Prototype | For Demonstration Only</strong>
+            <span className="gov-footer-sep">·</span>
+            <span>Independent student prototype · Not an official Government of India website</span>
+          </span>
+        </div>
+      </footer>
 
       {/* Helpline 1930 Dialog */}
       <HelplineModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />

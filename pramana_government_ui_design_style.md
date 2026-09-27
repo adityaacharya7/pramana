@@ -5,11 +5,20 @@ The style is inspired by formal Indian public-sector portals:
 restrained, structured, bilingual, accessible, and built around trust
 and clarity.
 
-> **Branding note:** This is a visual direction, not evidence of
-> government approval or affiliation. Use the State Emblem of India,
-> Digital India branding, official seals, or government department
-> identities only when their use is authorized. For demos, use clearly
-> marked fictional or placeholder branding.
+> **Important legal and branding requirement:**
+> Under **The State Emblem of India (Prohibition of Improper Use) Act, 2005**, unauthorized reproduction of the State Emblem of India (Ashoka Lion Capital), the "Government of India" / "भारत सरकार" official authority block, or the Digital India insignia is restricted. Unless a team has explicit authorization from the concerned Ministry or Department, student prototypes must not present themselves as authorized Government of India portals.
+>
+> **Prototype Branding Matrix:**
+>
+> | Element | Can you use it in your SIH prototype? | Guidance |
+> | :--- | :--- | :--- |
+> | **Ashoka Lion Capital / State Emblem** | ❌ Avoid unless authorized | Prohibited without statutory authorization. |
+> | **“Government of India” with official emblem** | ❌ Avoid unless authorized | Implies official government association. |
+> | **Digital India logo** | ❌ Use only with permission | Do not reproduce without explicit license. |
+> | **“Government-style” visual design** | ✔️ **Yes** | Navy bars, clean typography, tables, badges. |
+> | **Project logo and branding (PRAMANA)** | ✔️ **Yes** | Distinctive project crest (scales of evidence/shield). |
+> | **Bilingual interface (English + Hindi)** | ✔️ **Yes** | Standard institutional practice. |
+> | **“SIH Prototype — Not an Official Portal”** | ✔️ **Yes (Required)** | Explicit disclaimers in header and footer. |
 
 ## 1. Design principles
 
@@ -132,19 +141,25 @@ Use a consistent 4 px base scale:
 
 ## 6. Header and navigation
 
-### Government-style identity header
+### Prototype Identity Header
 
-Structure: 1. Organization identity area on the left 2. Product name and
-system descriptor 3. Utility controls on the right: text size, language,
-theme, notifications, profile
+**Structure:**
+1. **Left: PRAMANA Project Brand & Status**
+   - Distinctive PRAMANA institutional crest (`PramanaLogo`)
+   - Product name: **PRAMANA** with **`SIH Prototype`** badge
+   - Hindi title: **`प्रमाण — Investigation Review System`**
+   - Statutory disclaimer: **`Independent student prototype · Not an official Government of India website`**
+2. **Right: Utility Controls & Prototype Notice**
+   - Skip to main content link
+   - Text size adjusters (`A-`, `A`, `A+`)
+   - Bilingual language selector (`हिंदी |`)
+   - Light/Dark theme toggle
+   - Role-specific notifications & User profile menu
+   - Prototype Pill: **`SIH 2026 Prototype | For Demonstration Only`**
 
-Design: - White background with a thin bottom border - Clear separation
-between organization identity and product identity - Use official logos
-only when authorized - Keep utility controls small, aligned, and
-consistently spaced - Provide accessible names for icon-only controls
-
-For a synthetic demo, use a fictional department mark or a neutral
-shield icon. Label the environment clearly as **Synthetic demo**.
+**Institutional Footer:**
+- Anchored at the bottom of the application shell.
+- Includes full disclaimer: *“SIH 2026 Prototype | For Demonstration Only · Independent student prototype · Not an official Government of India website”*.
 
 ### Secondary bar
 

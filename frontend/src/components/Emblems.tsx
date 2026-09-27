@@ -1,8 +1,83 @@
 import type { SVGProps } from 'react'
 
 /**
+ * PRAMANA Official Project Crest
+ * Government-grade institutional insignia featuring the scales of evidence and justice,
+ * analytical verification pillar, and security shield.
+ * Designed for SIH 2026 Prototype in compliance with
+ * The State Emblem of India (Prohibition of Improper Use) Act, 2005.
+ */
+export function PramanaLogo({ size = 44, className = '' }: { size?: number; className?: string }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-label="PRAMANA System Emblem"
+    >
+      <defs>
+        <linearGradient id="pramana-shield-grad" x1="12" y1="6" x2="52" y2="58" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#0B2545" />
+          <stop offset="1" stopColor="#07192F" />
+        </linearGradient>
+        <linearGradient id="pramana-gold-grad" x1="16" y1="16" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#F59E0B" />
+          <stop offset="0.5" stopColor="#D97706" />
+          <stop offset="1" stopColor="#B45309" />
+        </linearGradient>
+      </defs>
+
+      {/* Outer shield structure */}
+      <path
+        d="M32 4L54 12V27C54 43.5 44 54.5 32 60C20 54.5 10 43.5 10 27V12L32 4Z"
+        fill="url(#pramana-shield-grad)"
+        stroke="url(#pramana-gold-grad)"
+        strokeWidth="2.5"
+        strokeLinejoin="round"
+      />
+
+      {/* Inner subtle institutional border line */}
+      <path
+        d="M32 8.5L49.5 15V26.5C49.5 40.5 41 50.5 32 55.5C23 50.5 14.5 40.5 14.5 26.5V15L32 8.5Z"
+        stroke="#1E3A8A"
+        strokeWidth="1.2"
+        fill="none"
+        opacity="0.8"
+      />
+
+      {/* Central Axis / Column of Truth */}
+      <line x1="32" y1="16" x2="32" y2="46" stroke="#FBBF24" strokeWidth="2.5" strokeLinecap="round" />
+
+      {/* Balance beam / Scales of Evidence */}
+      <path d="M20 23.5C24.5 22 39.5 22 44 23.5" stroke="#FBBF24" strokeWidth="2.2" strokeLinecap="round" />
+
+      {/* Central Fulcrum Diamond */}
+      <polygon points="32,20 35,23.5 32,27 29,23.5" fill="#FBBF24" />
+
+      {/* Left scale cords & pan (Evidence Weight) */}
+      <line x1="20" y1="23.5" x2="16" y2="33" stroke="#93C5FD" strokeWidth="1.2" />
+      <line x1="20" y1="23.5" x2="24" y2="33" stroke="#93C5FD" strokeWidth="1.2" />
+      <path d="M14 33C14 37.5 26 37.5 26 33Z" fill="url(#pramana-gold-grad)" />
+
+      {/* Right scale cords & pan (Verification Weight) */}
+      <line x1="44" y1="23.5" x2="40" y2="33" stroke="#93C5FD" strokeWidth="1.2" />
+      <line x1="44" y1="23.5" x2="48" y2="33" stroke="#93C5FD" strokeWidth="1.2" />
+      <path d="M38 33C38 37.5 50 37.5 50 33Z" fill="url(#pramana-gold-grad)" />
+
+      {/* Base Pedestal */}
+      <path d="M24 46H40L37 49.5H27L24 46Z" fill="#FBBF24" />
+      <line x1="21" y1="52" x2="43" y2="52" stroke="#FBBF24" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+/**
  * State Emblem of India (Lion Capital of Ashoka) with "सत्यमेव जयते"
- * Uses the exact official emblem image provided by the user
+ * NOTE: Restricted under The State Emblem of India (Prohibition of Improper Use) Act, 2005.
+ * Not for use in unauthorized student prototypes. Retained only for authorized government deployments.
  */
 export function AshokaEmblem({ size = 52, className = '' }: { size?: number; className?: string }) {
   const width = Math.round(size * 0.63)

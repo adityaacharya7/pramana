@@ -6,6 +6,9 @@ import AuditLog from './pages/AuditLog'
 import CaseView from './pages/CaseView'
 import Cases from './pages/Cases'
 import Login from './pages/Login'
+import AccessRequests from './pages/AccessRequests'
+import LeadPage from './pages/LeadPage'
+import VerifyBundle from './pages/VerifyBundle'
 
 function RequireSession({ children }: { children: ReactNode }) {
   const { me } = useAuth()
@@ -42,6 +45,9 @@ export default function App() {
         <Route path="/cases/:caseId" element={<CaseView />} />
         <Route path="/cases/:caseId/:tab" element={<CaseView />} />
         <Route path="/audit" element={<AuditLog />} />
+        <Route path="/leads/:leadId" element={<LeadPage />} />
+        <Route path="/access" element={<AccessRequests />} />
+        <Route path="/verify" element={<VerifyBundle />} />
       </Route>
       <Route path="*" element={<Navigate to="/cases" replace />} />
     </Routes>

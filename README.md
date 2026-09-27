@@ -8,22 +8,45 @@ statement 26189; the full plan is in the MVP specification of 25 Sep 2026, writt
 
 > Decision support only. The legal basis and final action rest with the officer and the competent authority.
 
-## Status: Weeks 1 and 2
+## Status: MVP P0 complete (Weeks 1-5)
 
 | Spec item | State |
 |---|---|
 | F1 Login, RBAC, case scoping | Done: bcrypt + TOTP (replay-protected) + short-lived JWT; permission matrix enforced server-side; out-of-scope requests get 403 **and** a ledger entry |
-| F1 Demo role switcher | Done: only in the isolated demo build, which has its own database; the standard build has no route to it and refuses to open a demo database |
-| F2 Evidence intake + SHA-256 manifest | Done: streamed hashing, content-type sniffing, re-hash on every load, mismatch blocks the file; identical copies share one source group |
-| F2 Four intake quality checks | Done: duplicate statements, date-range gaps, non-reconciling balances (reconciliation panel), ambiguous date formats; shown in the review queue, acknowledged with a logged reason |
-| F3 Extraction + review | Done: identifier rules → role patterns → spaCy NER, each mention with file + character span; nothing enters the graph until confirmed |
-| F4 Identity review | Done: people are per-record; candidates need similar names and are scored on shared vs conflicting identifiers; merge / keep separate / unresolved / split, reason required |
-| F5 Graph + timeline | Done: Cytoscape graph of confirmed entities, 1–3 hop focus, click any node or relationship → exact source text highlighted; timeline of transfers and calls |
-| F14 Tamper-evident log | Hash chain done; every write is logged in the same transaction. Signed Ed25519 checkpoints are **not yet** built, and verify says so |
-| Data model | All 20 spec tables (plus `deployment` and `quality_issues`, see below) |
-| Dataset v1 | Done: `dataset/tri_city_v1`, see below |
+| F1 Demo role switcher | Done: only in the isolated demo build, which has its own database |
+| F2 Evidence intake + manifest + 4 quality checks | Done: SHA-256 sealed, re-hashed on every load; duplicate / gap / reconciliation / ambiguous-date checks gate analysis |
+| F3 Extraction + review | Done: identifier rules → role patterns → spaCy NER, every mention with file + span; nothing unreviewed reaches the graph |
+| F4 Identity review | Done: per-record people; similar names scored on shared vs conflicting identifiers; merge / keep separate / unresolved / split |
+| F5 Graph + timeline | Done: 1–3 hop views; click any node, edge or timeline row to see the exact source text |
+| F6 Cross-case + blind match | Done: matches in out-of-scope cases show only count + owning unit; access requests decided by that unit's supervisor |
+| F7 MO similarity | Done: rule-based MO attributes with passages + similarity score (see "Known limits"); side-by-side comparison |
+| F8 Money Trail Engine | Done: FIFO / LIFO / pro-rata, opening balances, each rupee at one place, "as of" statement end, exits, missing statements, reconciliation |
+| F9 Rule library (8 rules) | Done: SHARED-ID, CONVERGENCE, LAYERING, CASHOUT, FACILITATOR, FRONT-ENTITY, MO-MATCH, ORDINARY-PAYMENT; versioned, configurable |
+| F10 Evidence Receipt | Done: records, rule + version, unknowns, conflicts, next step, "What could make this wrong?", independent-source count |
+| F11 Challenge Mode | Done: exclude source / dispute / simulate non-occurrence on a scenario copy; dependencies listed first; IO proposes, supervisor applies; only then drafts go stale |
+| F12 Amount & Draft Assistant | Done: one method per set, assumptions, range across methods, total checked against attributable amount; never sends |
+| F13 Lead lifecycle | Done: Detected → Under verification → Verified / Dismissed / Needs evidence; reason required; supervisor approves |
+| F14 Tamper-evident log + signed checkpoints | Done: Ed25519 checkpoint every 50 entries and at approvals/exports, kept outside the database; detects edits, deletions, rollbacks and full rewrites up to the latest checkpoint |
+| F15 Handover pack | Done: JSON re-run bundle + PDF; `verify-bundle` reproduces findings and estimates offline with no database |
+| F16 Crypto wallet as evidence-backed entity | Done: a wallet enters the trail only through a trade record naming the payment |
 
-Exit checks: Week 1 ("upload a file, see its hash, log in as 3 roles") and Week 2 ("confirmed entities appear in the graph; click-to-source works") both pass and are covered by tests.
+P1 items (Copilot, voice, Hindi extraction beyond the rule layers, victim/recovery tracker, auditor dashboard, onboarding sandbox,
+admin UI) are not built.
+
+## How the analysis works (Weeks 3-5)
+
+* **Pure and reproducible.** `analysis/inputs.py` turns *confirmed* rows into a JSON snapshot; `analysis/engine.py` computes
+  everything from that snapshot alone. The same code runs live, on a Challenge Mode copy, and from a handover bundle on another machine.
+* **Parties and events.** An account and the UPI ID paying into it are one party once a bank record or KYC response links them; both
+  statements of one transfer (same bank reference) are one event with two supporting rows and one source.
+* **Money trail.** Victims' payments (complaint-principal's account → an account named in the same complaint) are traced forward through
+  accounts with statements under FIFO, LIFO and pro-rata. Matches the spec's worked example exactly (M2: FIFO ₹12,000 / LIFO ₹56,000 /
+  pro-rata ₹32,222.22). Where records do not reconcile, figures are reported as uncertain.
+* **Challenge Mode.** Operations run on a scenario copy; the diff says why a finding went away ("Threshold not met: 2 of the 3 required
+  senders remain"), which estimates move, and which drafts would be affected. Applying needs an IO proposal and a supervisor approval.
+* **Demo baseline.** The demo seed preloads everything, runs the analysis for the Tri-City joint probe and creates a supervisor-approved
+  pro-rata draft set for the HUB convergence lead (logged as done by the seed on those officers' behalf), which is where the spec's demo
+  step 7 starts. `demo-reset --hold-back-complaints` leaves the three complaints out for a live-upload demo instead.
 
 ## How Week 2 works
 
@@ -44,8 +67,30 @@ Exit checks: Week 1 ("upload a file, see its hash, log in as 3 roles") and Week 
 * **Demo seed**: preloaded files are extracted and their deterministic mentions confirmed on the owning IO's behalf (logged as
   `BASELINE_REVIEW_APPLIED`). NER suggestions, identity questions and quality issues are left open for the demo.
 
-Tables beyond the spec's 20: `deployment` (which build owns the database) and `quality_issues` (the spec names the four checks but gives
-their results no home). Spec gap still open: `POST /proposals` (analyst proposals) has no table in the spec's data model.
+Tables beyond the spec's 20: `deployment` (which build owns the database), `quality_issues` (the spec names the four checks but gives
+their results no home) and `evidence_blobs` (sealed files on serverless hosts).
+
+## Demo walkthrough (5 minutes)
+
+1. Sign in as **io.mumbai** → case **C-101** → *Evidence*: the three complaints and the bank, KYC, call-record and chat evidence, all sealed.
+2. *Review queue*: extraction highlights, identity questions (two "Rahul Sharma" records stay separate), intake quality checks.
+3. *Cross-case*: P-77 links C-101 and C-102; *Similar method (MO)* proposes C-103 for comparison, passages side by side.
+4. *Money trail*: M1/M2/M3 → HUB → P2P seller → wallet W-1; switch FIFO / LIFO / pro-rata.
+5. *Leads* → **Potential convergence point**: the Evidence Receipt, unknowns (HUB beneficial owner), "What could make this wrong?".
+6. *Challenge Mode*: exclude the M3 → HUB record → threshold not met, estimates uncertain, 4 approved drafts listed as affected but still
+   live. Propose; switch role to **sup.mumbai**; approve → drafts marked *Needs re-approval*.
+7. Export the handover bundle; *Verify handover* re-runs it; *Audit log* verifies against the signed checkpoint.
+
+## Known limits
+
+* **MO similarity** uses rule-based MO attributes plus TF-IDF text similarity, not the multilingual embedding model the spec names (it
+  needs PyTorch, which neither the offline nor the serverless build carries). The 0.45 threshold was tuned on the demo data, not on
+  held-out cases, and a Hindi complaint does not match its English equivalent.
+* **Checkpoint key.** Locally the signing key lives in `var/keys/`, outside the data directory but on the same machine; the spec wants it
+  on a supervisor's token. On Vercel, set `PRAMANA_CHECKPOINT_KEY` (`python -m pramana.cli checkpoint-key`); without it, checkpoints are
+  skipped rather than signed with a throwaway key.
+* **Analyst proposals** (`POST /proposals`) have no table in the spec's data model and are not built.
+* No login rate limiting; no admin UI (users and cases are created with the CLI).
 
 ## Run it
 
@@ -54,7 +99,7 @@ their results no home). Spec gap still open: `POST /proposals` (analyst proposal
 cd backend
 python -m venv .venv && .venv/Scripts/pip install -r requirements-dev.txt   # Linux/macOS: .venv/bin/pip
 .venv/Scripts/python -m spacy download en_core_web_sm    # optional: without it, extraction runs rules only
-.venv/Scripts/python -m pramana.cli demo-reset            # after pulling schema changes (Week 2 added columns)
+.venv/Scripts/python -m pramana.cli demo-reset            # after pulling schema changes
 .venv/Scripts/python -m pramana.cli serve --demo          # demo build on :8000, seeds itself on first start
 
 # frontend (Node 20+)
@@ -103,6 +148,8 @@ Vercel deployment differs from a local one:
 3. Add environment variables:
    * `PRAMANA_BUILD` = `demo` (or `standard`)
    * `PRAMANA_JWT_SECRET` = a random string of 32+ characters, e.g. `python -c "import secrets; print(secrets.token_urlsafe(48))"`
+   * `PRAMANA_CHECKPOINT_KEY` = the private key from `python -m pramana.cli checkpoint-key` (signs audit-log checkpoints; keep the
+     printed public key to verify them)
 4. Prepare the database **once, from your machine**, using the database's direct (non-pooled) connection string. For the demo build:
 
    ```bash
@@ -111,7 +158,8 @@ Vercel deployment differs from a local one:
    ```
 
    For the standard build use `init-db`, then `create-user` / `create-case` / `add-member` with the same `PRAMANA_DB_URL`.
-   Seeding runs thousands of small queries, so over the internet it takes a few minutes.
+   Against a remote database the demo is built locally first and copied in batches (about a minute). Re-run it after pulling changes
+   that alter the schema.
 5. Deploy. The function refuses to start without a Postgres URL, a JWT secret, or a prepared database, and says which is missing.
 
 The demo build's role switcher lets anyone who can open the URL act as any demo role. The data is synthetic, but
@@ -142,7 +190,7 @@ which fails if the data drifts from its own ground truth.
 
 ## Security notes and known limits
 
-* The audit log is **tamper-evident, not a blockchain**. Without retained signed checkpoints, a fully recomputed chain passes; `verify` reports this.
+* The audit log is **tamper-evident, not a blockchain**: guaranteed up to the latest signed checkpoint kept outside the database; entries after it are reported as outside the guaranteed region.
 * Ledger appends are serialised by an in-process lock, plus a PostgreSQL advisory lock when running on PostgreSQL. On SQLite, run one API worker process.
 * No login rate limiting yet.
 * A matching file hash shows the file is unchanged since upload, not that its content is true or who made it.

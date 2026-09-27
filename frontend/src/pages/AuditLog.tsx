@@ -1,6 +1,7 @@
-import { Link2, Search, ShieldAlert, ShieldCheck } from 'lucide-react'
+import { Download, Link2, Search, ShieldAlert, ShieldCheck, Upload } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { api, type LedgerEntry, type LedgerReport } from '../api'
+import { api3 } from '../api3'
 import { useAuth } from '../auth'
 import { ErrorNote } from '../components/bits'
 import { formatDateTime, shortHash } from '../format'
@@ -40,6 +41,37 @@ export default function AuditLog() {
   }, [canRead])
   useEffect(loadEntries, [loadEntries])
 
+  async function downloadCheckpoint() {
+    try {
+      const r = await api3.checkpoint()
+      if (!r.checkpoint) {
+        setError('No signed checkpoint has been retained yet (one is taken every 50 entries and at approvals and exports).')
+        return
+      }
+      const blob = new Blob([JSON.stringify({ ...r.checkpoint, trusted_public_key: r.trusted_public_key }, null, 2)], { type: 'application/json' })
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+      a.download = `pramana-checkpoint-${r.checkpoint.seq}.json`
+      a.click()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Download failed.')
+    }
+  }
+
+  async function verifyFile(f: File | undefined) {
+    if (!f) return
+    setChecking(true)
+    setError(null)
+    try {
+      setReport(await api3.verifyWithCheckpoint(JSON.parse(await f.text())))
+      loadEntries()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Verification failed.')
+    } finally {
+      setChecking(false)
+    }
+  }
+
   async function verify() {
     setChecking(true)
     setError(null)
@@ -70,6 +102,15 @@ export default function AuditLog() {
           <Link2 size={16} aria-hidden /> {checking ? 'Verifying…' : 'Verify chain'}
         </button>
       </div>
+      <div className="row-actions">
+        <button className="btn btn-small btn-ghost" onClick={downloadCheckpoint}>
+          <Download size={14} aria-hidden /> Download latest signed checkpoint
+        </button>
+        <label className="btn btn-small btn-ghost">
+          <Upload size={14} aria-hidden /> Verify against a checkpoint you kept
+          <input type="file" accept=".json" hidden onChange={(e) => verifyFile(e.target.files?.[0])} />
+        </label>
+      </div>
       <ErrorNote error={error} />
 
       {report && (
@@ -91,8 +132,7 @@ export default function AuditLog() {
             </div>
           )}
           <p className="small verify-limit">
-            <strong>Coverage: internal chain only.</strong> No signed checkpoint is retained yet, so a chain rewritten with
-            recomputed hashes would still pass this check. Signed checkpoints kept outside the database close that gap.
+            <strong>Coverage: {report.checked_against}.</strong> {report.limitation}
           </p>
         </section>
       )}

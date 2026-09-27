@@ -1,4 +1,4 @@
-import { FolderOpen, LogOut, ScrollText } from 'lucide-react'
+import { FileCheck2, FolderOpen, KeyRound, LogOut, ScrollText } from 'lucide-react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth'
 import Wordmark from './Wordmark'
@@ -41,6 +41,12 @@ export default function Shell() {
       <nav className="sidenav" aria-label="Main">
         <NavLink to="/cases" className="navlink">
           <FolderOpen size={17} aria-hidden /> Cases
+        </NavLink>
+        <NavLink to="/access" className="navlink">
+          <KeyRound size={17} aria-hidden /> Access requests
+        </NavLink>
+        <NavLink to="/verify" className="navlink">
+          <FileCheck2 size={17} aria-hidden /> Verify handover
         </NavLink>
         <NavLink to="/audit" className="navlink">
           <ScrollText size={17} aria-hidden /> Audit log

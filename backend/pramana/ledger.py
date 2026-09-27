@@ -49,6 +49,9 @@ def entry_hash(prev_hash: str, seq: int, ts: str, actor: str, action: str, paylo
 
 
 LEDGER_LOCK_KEY = 0x50524D4E  # "PRMN"
+# Called after every committed ledger transaction (set by the app to take
+# periodic signed checkpoints). Receives the session.
+AFTER_COMMIT_HOOK = None
 
 
 @contextmanager
@@ -68,6 +71,8 @@ def transaction(session: Session) -> Iterator[None]:
         except Exception:
             session.rollback()
             raise
+        if AFTER_COMMIT_HOOK is not None:
+            AFTER_COMMIT_HOOK(session)
 
 
 def append(session: Session, *, actor: str, action: str, payload: dict[str, Any] | None = None) -> LedgerEntry:
@@ -98,7 +103,35 @@ def record(session: Session, *, actor: str, action: str, payload: dict[str, Any]
         return append(session, actor=actor, action=action, payload=payload)
 
 
-def verify(session: Session) -> dict[str, Any]:
+def verify(session: Session, keyring=None, checkpoint: dict | None = None) -> dict[str, Any]:
+    report = _verify_chain(session)
+    if keyring is None:
+        return report
+    from . import checkpoints as cps
+    cp = checkpoint or cps.latest_retained(keyring)
+    if cp is None:
+        return report
+    entries = session.scalars(select(LedgerEntry).order_by(LedgerEntry.seq)).all()
+    check = cps.check_against(entries, cp, keyring.public_key())
+    report["checked_against"] = f"internal chain + signed checkpoint #{cp['seq']}"
+    report["latest_trusted_checkpoint"] = {k: cp.get(k) for k in ("seq", "head_hash", "taken_at", "reason",
+                                                                   "key_fingerprint")}
+    if check["ok"]:
+        report["entries_after_checkpoint"] = check["entries_after_checkpoint"]
+        report["limitation"] = (f"Guaranteed through entry #{cp['seq']} (signed {cp['taken_at'][:19]}Z). "
+                                f"{check['entries_after_checkpoint']} later entr"
+                                f"{'y is' if check['entries_after_checkpoint'] == 1 else 'ies are'} outside the "
+                                f"guaranteed region until the next checkpoint.")
+    else:
+        report["ok"] = False
+        report["reason"] = check["reason"]
+        report["limitation"] = "The log does not match a signed checkpoint kept outside the database."
+        if report.get("first_bad_seq") is None:
+            report["first_bad_seq"] = min(cp["seq"], report.get("head_seq") or cp["seq"])
+    return report
+
+
+def _verify_chain(session: Session) -> dict[str, Any]:
     entries = session.scalars(select(LedgerEntry).order_by(LedgerEntry.seq)).all()
     prev = GENESIS
     expected_seq = 1

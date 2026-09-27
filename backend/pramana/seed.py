@@ -21,7 +21,7 @@ def _load(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def seed_demo(db: Session, settings: Settings, preload_all: bool = False) -> dict:
+def seed_demo(db: Session, settings: Settings, preload_all: bool = True) -> dict:
     if not settings.is_demo:
         raise RuntimeError("The synthetic dataset is only ever loaded into the demo build.")
     ds = settings.dataset_dir
@@ -80,8 +80,31 @@ def seed_demo(db: Session, settings: Settings, preload_all: bool = False) -> dic
         loaded += 1
 
     reviewed = baseline_review(db, settings, owners)
+    baseline = baseline_analysis(db, settings) if not held_back else None
     return {"users": len(users), "cases": len(cases), "evidence_loaded": loaded,
-            "held_back_for_live_upload": held_back, "baseline_review": reviewed}
+            "held_back_for_live_upload": held_back, "baseline_review": reviewed, "baseline_analysis": baseline}
+
+
+def baseline_analysis(db: Session, settings: Settings) -> dict:
+    """The demo's starting point for Challenge Mode (spec demo step 7): the
+    Tri-City joint probe analysed, and a supervisor-approved draft set for the
+    convergence lead on HUB. Logged as done by the seed on those officers'
+    behalf."""
+    from .analysis import service
+    from .models import ActionDraft, Lead
+    io = db.scalar(select(User).where(User.username == "io.mumbai"))
+    sup = db.scalar(select(User).where(User.username == "sup.mumbai"))
+    cases = ["C-101", "C-102", "C-103"]
+    run = service.run_analysis(db, settings, io, cases, actor=f"{SYSTEM} (for io.mumbai)")
+    lead = db.scalar(select(Lead).where(Lead.rule_id == "CONVERGENCE-v1", Lead.active.is_(True)))
+    drafts = 0
+    if lead is not None:
+        ds = service.create_drafts(db, settings, io, lead, "prorata", actor=f"{SYSTEM} (for io.mumbai)")
+        for d in db.scalars(select(ActionDraft).where(ActionDraft.set_id == ds["set_id"])):
+            service.approve_draft(db, sup, d, "Baseline draft approved for the demo",
+                                  actor=f"{SYSTEM} (for sup.mumbai)")
+            drafts += 1
+    return {"leads": run["created"], "approved_baseline_drafts": drafts}
 
 
 def baseline_review(db: Session, settings: Settings, owners: dict[str, str]) -> dict:

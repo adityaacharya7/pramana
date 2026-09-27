@@ -9,6 +9,8 @@ PyJWT>=2.8
 networkx>=3.2
 pypdf>=4
 psycopg[binary]>=3.1
+cryptography>=42
+reportlab>=4
 spacy>=3.7,<4
 # English NER model (installed separately so the demo image can bake it in):
 #   python -m spacy download en_core_web_sm

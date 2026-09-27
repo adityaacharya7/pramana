@@ -99,7 +99,10 @@ def test_two_rahul_sharmas_stay_separate(demo):
     headers = as_user(demo, "io.mumbai")
     cands = demo.get("/cases/C-101/review-queue", headers=headers).json()["identity_candidates"]
     rahul = [c for c in cands if c["a_card"]["name"] == c["b_card"]["name"] == "Rahul Sharma"]
-    witness_vs_holder = next(c for c in rahul if {"C-101", "C-102"} <= set(c["a_card"]["cases"] + c["b_card"]["cases"]))
+    def kinds(card):
+        return {src["kind"] for src in card["sources"]}
+    witness_vs_holder = next(c for c in rahul if "witness_statement" in kinds(c["a_card"]) | kinds(c["b_card"])
+                             and "kyc_response" in kinds(c["a_card"]) | kinds(c["b_card"]))
     assert witness_vs_holder["suggestion"] == "likely_different"
     assert {x["type"] for x in witness_vs_holder["conflicting"]} == {"phone", "id_document"}
 

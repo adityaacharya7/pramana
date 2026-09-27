@@ -61,8 +61,11 @@ def dispose_engine(db_url: str) -> None:
         _ENGINES.pop(key).dispose()
 
 
-def make_sessionmaker(engine: Engine) -> sessionmaker[Session]:
-    return sessionmaker(bind=engine, autoflush=True, expire_on_commit=False)
+def make_sessionmaker(engine: Engine, settings=None) -> sessionmaker[Session]:
+    # Settings ride on each session so after-commit hooks (signed checkpoints)
+    # know which deployment they belong to.
+    return sessionmaker(bind=engine, autoflush=True, expire_on_commit=False,
+                        info={"settings": settings} if settings is not None else {})
 
 
 class DeploymentMismatch(RuntimeError):

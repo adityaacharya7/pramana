@@ -56,6 +56,19 @@ MATRIX: dict[str, dict[Role, str]] = {
     "identity.decide": {Role.IO: MEMBER, Role.SUPERVISOR: UNIT},
     "quality.decide": {Role.IO: MEMBER, Role.SUPERVISOR: UNIT},
     "graph.read": {Role.IO: MEMBER, Role.ANALYST: MEMBER, Role.SUPERVISOR: UNIT},
+    # Weeks 3-5 (spec permission matrix): IO own cases, Analyst authorised
+    # cases, Supervisor unit cases. A lead spanning cases needs all of them.
+    "analysis.run": {Role.IO: MEMBER, Role.ANALYST: MEMBER, Role.SUPERVISOR: UNIT},
+    "lead.read": {Role.IO: MEMBER, Role.ANALYST: MEMBER, Role.SUPERVISOR: UNIT},
+    "lead.challenge": {Role.IO: MEMBER, Role.ANALYST: MEMBER, Role.SUPERVISOR: UNIT},
+    "lead.transition": {Role.IO: MEMBER, Role.SUPERVISOR: UNIT},  # IO proposes, supervisor approves
+    "scenario.decide": {Role.IO: MEMBER, Role.SUPERVISOR: UNIT},  # IO proposes, supervisor applies
+    "draft.create": {Role.IO: MEMBER},
+    "draft.approve": {Role.SUPERVISOR: UNIT},
+    "lead.export": {Role.IO: MEMBER, Role.ANALYST: MEMBER, Role.SUPERVISOR: UNIT},
+    "access.request": {Role.IO: ANY, Role.ANALYST: ANY, Role.SUPERVISOR: ANY},
+    "access.decide": {Role.SUPERVISOR: ANY},  # further limited to the owning unit's supervisor
+    "bundle.verify": EVERYONE,
     # Auditors read the whole trail; supervisors read entries for cases in
     # their scope (filtered in the query).
     "ledger.read": {Role.AUDITOR: ANY, Role.SUPERVISOR: UNIT},
@@ -104,6 +117,12 @@ def require_case(db: Session, user: User, case_id: str, action: str) -> Case:
     if not in_scope(db, user, case, scope):
         raise _refuse(db, user, action, case_id, "case outside the user's scope")
     return case
+
+
+def require_cases(db: Session, user: User, case_ids: list[str], action: str) -> list[Case]:
+    if not case_ids:
+        raise HTTPException(status_code=422, detail="Choose at least one case.")
+    return [require_case(db, user, c, action) for c in sorted(set(case_ids))]
 
 
 def visible_case_ids(db: Session, user: User, action: str = "case.view") -> list[str]:

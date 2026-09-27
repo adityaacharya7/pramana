@@ -242,6 +242,18 @@ class Lead(Base):
     status: Mapped[str] = mapped_column(String(24), default="DETECTED")
     owner: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
     created_at: Mapped[str] = mapped_column(String(40))
+    # One lead per observation key (rule + subject); re-running analysis
+    # updates it instead of creating duplicates.
+    key: Mapped[str] = mapped_column(String(255), unique=True)
+    rule_id: Mapped[str] = mapped_column(String(32))
+    title: Mapped[str] = mapped_column(String(255))
+    case_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
+    detail: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)  # the observation as last produced
+    active: Mapped[bool] = mapped_column(Boolean, default=True)  # still produced by the latest run
+    pending_status: Mapped[str | None] = mapped_column(String(24))
+    pending_reason: Mapped[str | None] = mapped_column(Text)
+    pending_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    updated_at: Mapped[str | None] = mapped_column(String(40))
 
 
 class LeadSupport(Base):
@@ -273,7 +285,9 @@ class Scenario(Base):
     __tablename__ = "scenarios"
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
     lead_id: Mapped[str] = mapped_column(ForeignKey("leads.id"))
-    base_snapshot_id: Mapped[str] = mapped_column(ForeignKey("snapshots.id"))
+    base_snapshot_id: Mapped[str | None] = mapped_column(ForeignKey("snapshots.id"))
+    case_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
+    input_hash: Mapped[str | None] = mapped_column(String(64))  # the live input the scenario was run on
     # [{"op": "exclude_source" | "dispute_txn" | "simulate_no_txn", ...}]
     operations: Mapped[list[Any]] = mapped_column(JSON, default=list)
     reconciles: Mapped[bool | None] = mapped_column(Boolean)
@@ -282,6 +296,9 @@ class Scenario(Base):
     proposed_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
     approved_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
     created_at: Mapped[str] = mapped_column(String(40))
+    proposal_reason: Mapped[str | None] = mapped_column(Text)
+    decision_reason: Mapped[str | None] = mapped_column(Text)
+    decided_at: Mapped[str | None] = mapped_column(String(40))
 
 
 class ActionDraft(Base):
@@ -296,7 +313,20 @@ class ActionDraft(Base):
     inputs_hash: Mapped[str] = mapped_column(String(64))
     stale: Mapped[bool] = mapped_column(Boolean, default=False)
     draft_text: Mapped[str] = mapped_column(Text)
-    status: Mapped[str] = mapped_column(String(24), default="DRAFT")
+    status: Mapped[str] = mapped_column(String(24), default="DRAFT")  # DRAFT | APPROVED | NEEDS_REAPPROVAL
+    # One draft set = one lead, one scenario, one method; its total is checked
+    # against the amount attributable under that method.
+    set_id: Mapped[str] = mapped_column(String(32), index=True)
+    amount: Mapped[Decimal | None] = mapped_column(Money)  # the estimate under `method`
+    as_of: Mapped[str | None] = mapped_column(String(40))
+    case_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
+    sources: Mapped[list[str]] = mapped_column(JSON, default=list)  # source groups the estimate rests on
+    notes: Mapped[list[Any]] = mapped_column(JSON, default=list)
+    created_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[str | None] = mapped_column(String(40))
+    approved_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    approved_at: Mapped[str | None] = mapped_column(String(40))
+    stale_reason: Mapped[str | None] = mapped_column(Text)
 
 
 class QualityIssue(Base):

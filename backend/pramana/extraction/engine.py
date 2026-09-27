@@ -53,9 +53,24 @@ def date_order_for(db: Session, ev: EvidenceFile) -> str:
     return "DMY"
 
 
+_PARSE_CACHE: dict[tuple, Parsed] = {}
+_PARSE_CACHE_MAX = 512
+
+
 def parse_evidence(db: Session, settings: Settings, ev: EvidenceFile) -> tuple[str, Parsed]:
+    # The text is re-read and re-hashed on every call (a mismatch raises
+    # before anything is used). Parsing is deterministic in (content hash,
+    # type, source group, date reading), so that result is cached.
     text = evidence_text(settings, ev)
-    return text, parse_file(text, ev.type, ev.source_group_id, date_order_for(db, ev))
+    order = date_order_for(db, ev)
+    key = (ev.sha256, ev.type, ev.source_group_id, order)
+    parsed = _PARSE_CACHE.get(key)
+    if parsed is None:
+        parsed = parse_file(text, ev.type, ev.source_group_id, order)
+        if len(_PARSE_CACHE) >= _PARSE_CACHE_MAX:
+            _PARSE_CACHE.pop(next(iter(_PARSE_CACHE)))
+        _PARSE_CACHE[key] = parsed
+    return text, parsed
 
 
 # --- extraction ------------------------------------------------------------------

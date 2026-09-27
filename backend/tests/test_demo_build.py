@@ -35,9 +35,10 @@ def test_demo_build_is_seeded_from_the_synthetic_dataset(demo):
         assert db.query(User).count() == 9
         assert db.query(Case).count() == 30
         stored = db.scalars(select(EvidenceFile)).all()
-        # Everything except the three Tri-City complaints, which the IO uploads live.
-        assert len(stored) == sum(1 for f in manifest["files"] if f["case_id"]) - len(live)
-        assert not live & {e.filename for e in stored}
+        # Everything, including the three Tri-City complaints (use
+        # `demo-reset --hold-back-complaints` to upload those live instead).
+        assert len(stored) == sum(1 for f in manifest["files"] if f["case_id"])
+        assert live <= {e.filename for e in stored}
         # Seeded files carry the dataset's own hashes.
         by_name = {f["path"].split("/")[-1]: f["sha256"] for f in manifest["files"]}
         assert all(e.sha256 == by_name[e.filename] for e in stored)
@@ -68,6 +69,7 @@ def test_demo_io_can_upload_a_tri_city_complaint(demo):
     r = client.post("/cases/C-101/evidence", headers=as_user(client, "io.mumbai"),
                     files={"file": (path.name, path.read_bytes())}, data={"kind": "complaint"})
     assert r.status_code == 201
+    assert r.json()["duplicate_of"]  # already preloaded: a byte-identical copy, one source
     manifest = json.loads((DATASET / "manifest.json").read_text(encoding="utf-8"))
     expected = next(f["sha256"] for f in manifest["files"] if f["path"].endswith(path.name))
     assert r.json()["sha256"] == expected

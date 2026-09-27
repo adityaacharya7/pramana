@@ -50,6 +50,8 @@ class Settings:
     serverless: bool
     manage_schema: bool  # create tables on start-up
     auto_seed: bool  # seed an empty demo database on start-up
+    checkpoint_dir: Path  # signed checkpoints, kept outside the database
+    key_dir: Path  # checkpoint signing key, kept outside the data directory
 
     @property
     def is_demo(self) -> bool:
@@ -140,4 +142,6 @@ def load_settings(build: str | None = None, data_root: Path | None = None) -> Se
         serverless=serverless,
         manage_schema=_flag("PRAMANA_MANAGE_SCHEMA", not serverless),
         auto_seed=_flag("PRAMANA_AUTO_SEED", not serverless),
+        checkpoint_dir=Path(os.environ.get("PRAMANA_CHECKPOINT_DIR") or root / "checkpoints" / build),
+        key_dir=Path(os.environ.get("PRAMANA_KEY_DIR") or root / "keys" / build),
     )

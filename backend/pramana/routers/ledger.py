@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -16,9 +16,11 @@ router = APIRouter(prefix="/ledger", tags=["ledger"])
 
 
 @router.get("/verify")
-def verify_ledger(user: User = Depends(current_user), db: Session = Depends(get_db)):
+def verify_ledger(request: Request, user: User = Depends(current_user), db: Session = Depends(get_db)):
     require_action(db, user, "ledger.verify")
-    report = ledger.verify(db)
+    from ..checkpoints import enabled, keyring_for
+    settings = request.app.state.settings
+    report = ledger.verify(db, keyring_for(settings) if enabled(settings) else None)
     ledger.record(db, actor=user.username, action="LEDGER_VERIFIED", payload={
         "ok": report["ok"], "entries_checked": report["entries"], "head_seq": report["head_seq"],
         "first_bad_seq": report["first_bad_seq"],

@@ -286,7 +286,7 @@ export function onUnauthorized(handler: () => void) {
   unauthorizedHandler = handler
 }
 
-async function send(path: string, init: RequestInit = {}): Promise<Response> {
+export async function send(path: string, init: RequestInit = {}): Promise<Response> {
   const headers = new Headers(init.headers)
   if (token) headers.set('Authorization', `Bearer ${token}`)
   const res = await fetch(BASE + path, { ...init, headers })
@@ -310,11 +310,11 @@ async function send(path: string, init: RequestInit = {}): Promise<Response> {
   return res
 }
 
-async function json<T>(path: string, init?: RequestInit): Promise<T> {
+export async function json<T>(path: string, init?: RequestInit): Promise<T> {
   return (await send(path, init)).json() as Promise<T>
 }
 
-const post = (body: unknown): RequestInit => ({
+export const post = (body: unknown): RequestInit => ({
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify(body),

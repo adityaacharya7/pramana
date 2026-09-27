@@ -6,23 +6,22 @@ import { useAuth } from '../auth'
 import { AccessChip, ErrorNote, Hash, IntegrityBadge } from '../components/bits'
 import EvidenceUpload from '../components/EvidenceUpload'
 import EvidenceViewer from '../components/EvidenceViewer'
+import CrossCaseTab from '../components/CrossCaseTab'
 import GraphTab from '../components/GraphTab'
+import LeadsTab from '../components/LeadsTab'
+import MoneyTrailTab from '../components/MoneyTrailTab'
 import ReviewTab from '../components/ReviewTab'
 import { formatBytes, formatDate, formatDateTime, KIND_LABELS } from '../format'
 
 // Workspaces that arrive in later weeks of the build plan. Listed so the
 // shape of a case is visible, but not clickable until they exist.
-const LATER = [
-  { label: 'Money trail', when: 'Week 3' },
-  { label: 'Leads', when: 'Week 3' },
-]
-
-type Tab = 'evidence' | 'review' | 'graph'
+type Tab = 'evidence' | 'review' | 'graph' | 'leads' | 'trail' | 'crosscase'
+const TABS: Tab[] = ['evidence', 'review', 'graph', 'leads', 'trail', 'crosscase']
 
 // Keyed by case id so switching cases starts from a clean state.
 export default function CaseViewRoute() {
   const { caseId = '', tab } = useParams()
-  const t: Tab = tab === 'review' || tab === 'graph' ? tab : 'evidence'
+  const t: Tab = TABS.includes(tab as Tab) ? (tab as Tab) : 'evidence'
   return <CaseView key={caseId} caseId={caseId} tab={t} />
 }
 
@@ -144,15 +143,28 @@ function CaseView({ caseId, tab }: { caseId: string; tab: Tab }) {
             Graph &amp; timeline
           </NavLink>
         )}
-        {LATER.map((t) => (
-          <button key={t.label} className="tab" role="tab" aria-selected="false" disabled title={`Arrives in ${t.when} of the build plan`}>
-            {t.label} <span className="tab-soon">{t.when}</span>
-          </button>
-        ))}
+        {can('lead.read') && (
+          <NavLink to={`/cases/${kase.id}/leads`} className={({ isActive }) => `tab${isActive ? ' tab-active' : ''}`}>
+            Leads
+          </NavLink>
+        )}
+        {can('graph.read') && (
+          <NavLink to={`/cases/${kase.id}/trail`} className={({ isActive }) => `tab${isActive ? ' tab-active' : ''}`}>
+            Money trail
+          </NavLink>
+        )}
+        {can('graph.read') && (
+          <NavLink to={`/cases/${kase.id}/crosscase`} className={({ isActive }) => `tab${isActive ? ' tab-active' : ''}`}>
+            Cross-case
+          </NavLink>
+        )}
       </nav>
 
       {tab === 'review' && <ReviewTab caseId={kase.id} />}
       {tab === 'graph' && <GraphTab caseId={kase.id} />}
+      {tab === 'leads' && <LeadsTab caseId={kase.id} />}
+      {tab === 'trail' && <MoneyTrailTab caseId={kase.id} />}
+      {tab === 'crosscase' && <CrossCaseTab caseId={kase.id} />}
       {tab === 'evidence' && (
         <>
       {canUpload && <EvidenceUpload caseId={kase.id} onSealed={() => loadEvidence().catch(() => undefined)} />}

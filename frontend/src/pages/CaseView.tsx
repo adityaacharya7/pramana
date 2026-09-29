@@ -1,6 +1,6 @@
 import {
   ArrowLeftRight, Building2, CalendarDays, ChevronLeft, ClipboardCheck, Eye, FileArchive, FileSpreadsheet, FileText, Image, Lightbulb, Lock,
-  Network, RefreshCw, ShieldX, User, Waypoints,
+  Network, RefreshCw, ShieldX, Sparkles, User, Waypoints,
 } from 'lucide-react'
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { Link, NavLink, useParams } from 'react-router-dom'
@@ -13,13 +13,14 @@ import CrossCaseTab from '../components/CrossCaseTab'
 import LeadsTab from '../components/LeadsTab'
 import MoneyTrailTab from '../components/MoneyTrailTab'
 import ReviewTab from '../components/ReviewTab'
+import AiForensicTab from '../components/AiForensicTab'
 import { Avatar, Card, EmptyState, Skeleton } from '../components/ui'
 import { formatBytes, formatDate, formatDateTime, KIND_LABELS } from '../format'
 
 const GraphTab = lazy(() => import('../components/GraphTab'))
 
-type Tab = 'evidence' | 'review' | 'graph' | 'leads' | 'trail' | 'crosscase'
-const TABS: Tab[] = ['evidence', 'review', 'graph', 'leads', 'trail', 'crosscase']
+type Tab = 'evidence' | 'review' | 'graph' | 'leads' | 'trail' | 'crosscase' | 'ai'
+const TABS: Tab[] = ['evidence', 'review', 'graph', 'leads', 'trail', 'crosscase', 'ai']
 
 // Keyed by case id so switching cases starts from a clean state.
 export default function CaseViewRoute() {
@@ -180,6 +181,13 @@ function CaseView({ caseId, tab }: { caseId: string; tab: Tab }) {
             <Network size={15} aria-hidden /> Cross-case
           </NavLink>
         )}
+        <NavLink
+          to={`/cases/${kase.id}/ai`}
+          className={({ isActive }) => `tab${isActive ? ' tab-active' : ''}`}
+          style={{ color: '#d97706', fontWeight: 700 }}
+        >
+          <Sparkles size={15} aria-hidden /> AI Intelligence
+        </NavLink>
       </nav>
 
       {tab === 'review' && <ReviewTab caseId={kase.id} />}
@@ -191,6 +199,7 @@ function CaseView({ caseId, tab }: { caseId: string; tab: Tab }) {
       {tab === 'leads' && <LeadsTab caseId={kase.id} />}
       {tab === 'trail' && <MoneyTrailTab caseId={kase.id} />}
       {tab === 'crosscase' && <CrossCaseTab caseId={kase.id} />}
+      {tab === 'ai' && <AiForensicTab kase={kase} />}
       {tab === 'evidence' && (
         <>
       {canUpload && <EvidenceUpload caseId={kase.id} onSealed={() => loadEvidence().catch(() => undefined)} />}

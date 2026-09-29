@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from . import __version__
 from .config import Settings, load_settings
 from .db import Base, check_deployment, make_engine, make_sessionmaker
-from .routers import auth, cases, crosscase, demo, evidence, graph, leads, ledger, review
+from .routers import ai, auth, cases, crosscase, demo, evidence, graph, leads, ledger, review
 
 log = logging.getLogger("pramana")
 
@@ -49,7 +49,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                        expose_headers=["X-Evidence-SHA256"])
 
     for r in (auth.router, cases.router, evidence.router, ledger.router, review.router, graph.router,
-              leads.router, crosscase.router):
+              leads.router, crosscase.router, ai.router):
         app.include_router(r)
     if settings.is_demo:
         app.include_router(demo.router)

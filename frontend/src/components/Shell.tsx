@@ -21,6 +21,7 @@ import { useAuth } from '../auth'
 import { applyTheme, effectiveTheme, type Theme } from '../theme'
 import { PramanaLogo } from './Emblems'
 import { HelplineModal, NotificationPopover } from './GovModals'
+import AiCopilot from './AiCopilot'
 
 const TAB_NAMES: Record<string, string> = {
   review: 'Review queue',
@@ -28,6 +29,7 @@ const TAB_NAMES: Record<string, string> = {
   leads: 'Leads',
   trail: 'Money trail',
   crosscase: 'Cross-case',
+  ai: 'AI Forensic Intelligence',
 }
 
 function useFormattedClock() {
@@ -481,6 +483,9 @@ export default function Shell({ children }: { children?: ReactNode }) {
 
       {/* Helpline 1930 Dialog */}
       <HelplineModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
+
+      {/* PRAMANA AI Copilot Floating Interface */}
+      <AiCopilot />
     </div>
   )
 }

@@ -373,6 +373,15 @@ export const api = {
     json<EdgeSupport>(`/edges/support?ids=${edgeIds.join(',')}&case_id=${encodeURIComponent(caseId)}`),
   ledger: (limit = 300) => json<LedgerEntry[]>(`/ledger?limit=${limit}`),
   verifyLedger: () => json<LedgerReport>('/ledger/verify'),
+  ai: {
+    status: () => json<{ status: string; provider: string; active_models: string[]; capabilities: string[] }>('/ai/status'),
+    chat: (message: string, caseId?: string, history?: { role: string; content: string }[]) =>
+      json<{ reply: string; case_id?: string; officer: string; timestamp: string }>('/ai/chat', post({ message, case_id: caseId, history })),
+    analyzeCase: (caseId: string) =>
+      json<{ case_id: string; analysis: any; analyzed_at: string }>('/ai/case-analysis', post({ case_id: caseId })),
+    draftNotice: (data: { case_id: string; notice_type: string; entity_name: string; entity_identifier: string; amount?: string; utr?: string; ifsc?: string }) =>
+      json<{ case_id: string; notice_type: string; target: string; notice_text: string; drafted_at: string }>('/ai/draft-notice', post(data)),
+  },
 }
 
 export async function sha256Hex(file: Blob): Promise<string> {

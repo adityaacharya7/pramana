@@ -328,6 +328,8 @@ export const api = {
   demoSession: (username: string) => json<Session>('/demo/session', post({ username })),
   me: () => json<Me>('/auth/me'),
   cases: () => json<CaseSummary[]>('/cases'),
+  createCase: (data: { fir_no: string; title: string; complainant: string; city: string; unit: string; station?: string }) =>
+    json<CaseDetail>('/cases', post(data)),
   case: (id: string) => json<CaseDetail>(`/cases/${encodeURIComponent(id)}`),
   evidence: (caseId: string) => json<Evidence[]>(`/cases/${encodeURIComponent(caseId)}/evidence`),
   upload: (caseId: string, file: File, kind: string) => {

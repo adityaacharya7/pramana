@@ -36,6 +36,13 @@ function useFormattedClock() {
   function formatNow() {
     try {
       const now = new Date()
+      const datePart = new Intl.DateTimeFormat('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }).format(now)
       const timePart = new Intl.DateTimeFormat('en-IN', {
         timeZone: 'Asia/Kolkata',
         hour: 'numeric',
@@ -43,9 +50,10 @@ function useFormattedClock() {
         hour12: true,
       }).format(now)
 
-      return `Wednesday, 27 September 2026  |  ${timePart.toUpperCase()}`
+      return `${datePart}  |  ${timePart.toUpperCase()}`
     } catch {
-      return 'Wednesday, 27 September 2026  |  11:24 AM'
+      const d = new Date()
+      return `${d.toLocaleDateString()}  |  ${d.toLocaleTimeString()}`
     }
   }
 
@@ -72,7 +80,9 @@ function GovCrumbs() {
         items.push({ label: TAB_NAMES[parts[2]] ?? parts[2] })
       }
     }
-  } else if (parts[0] === 'roles' || parts[0] === 'select-role' || parts[0] === 'login') {
+  } else if (parts[0] === 'login') {
+    items.push({ label: 'Sign In' })
+  } else if (parts[0] === 'roles' || parts[0] === 'select-role') {
     items.push({ label: 'Select Role' })
   } else if (parts[0] === 'leads') {
     items.push({ to: '/cases', label: 'Cases' }, { label: 'Lead Details' })
@@ -129,7 +139,7 @@ function ThemeToggle() {
 }
 
 export default function Shell({ children }: { children?: ReactNode }) {
-  const { me, build, signOut } = useAuth()
+  const { me, signOut } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [helpOpen, setHelpOpen] = useState(false)
@@ -146,22 +156,17 @@ export default function Shell({ children }: { children?: ReactNode }) {
     location.pathname === '/select-role' ||
     location.pathname === '/login'
 
-  const user = me?.user ?? {
-    name: 'Tanvi Kelkar',
-    role: 'ANALYST' as const,
-    role_label: 'Intel Analyst',
-    unit: 'MUM-CYB',
-    username: 'analyst.mumbai',
-    id: 'usr-analyst',
-  }
+  const user = me?.user ?? null
 
-  const initials = user.name
-    .replace(/^(Insp\.|SI|PSI|ACP|DySP|Dr\.)\s+/i, '')
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase())
-    .join('')
+  const initials = user?.name
+    ? user.name
+        .replace(/^(Insp\.|SI|PSI|ACP|DySP|Dr\.)\s+/i, '')
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((w) => w[0]?.toUpperCase())
+        .join('')
+    : 'PO'
 
   const handleZoom = (level: 'small' | 'normal' | 'large') => {
     setZoomLevel(level)
@@ -195,21 +200,14 @@ export default function Shell({ children }: { children?: ReactNode }) {
 
   return (
     <div className="gov-shell-wrapper">
-      {/* 1. TOP PRAMANA PROTOTYPE INSTITUTIONAL HEADER */}
+      {/* 1. TOP PRAMANA INSTITUTIONAL HEADER */}
       <header className="gov-header" role="banner">
         <div className="gov-header-left">
-          {/* PRAMANA Brand Title & Independent Prototype Identity */}
+          {/* PRAMANA Brand Title */}
           <Link to="/cases" className="gov-brand-wrap" aria-label="PRAMANA Home">
-            <PramanaLogo size={44} className="gov-brand-icon" />
+            <PramanaLogo size={40} className="gov-brand-icon" />
             <div className="gov-brand-text">
-              <div className="gov-brand-title-row">
-                <span className="gov-brand-en">PRAMANA</span>
-                <span className="gov-brand-tag">SIH Prototype</span>
-              </div>
               <span className="gov-brand-hi">प्रमाण — Investigation Review System</span>
-              <span className="gov-brand-disclaimer">
-                Independent student prototype · Not an official Government of India website
-              </span>
             </div>
           </Link>
         </div>
@@ -254,7 +252,7 @@ export default function Shell({ children }: { children?: ReactNode }) {
             onClick={() => setHindiOnly(!hindiOnly)}
             title="भाषा बदलें / Toggle primary language"
           >
-            हिंदी |
+            हिंदी
           </button>
 
           {/* Dark mode moon/sun */}
@@ -275,56 +273,60 @@ export default function Shell({ children }: { children?: ReactNode }) {
           </div>
 
           {/* User profile with initials & dropdown */}
-          <div className="gov-user-profile-wrap" ref={userMenuRef}>
-            <button
-              className="gov-user-profile-btn"
-              onClick={() => setUserMenuOpen(!userMenuOpen)}
-              aria-expanded={userMenuOpen}
-              aria-label="User menu"
-            >
-              <span className="gov-user-avatar" style={{ background: '#073b3a' }}>
-                {initials || 'TK'}
-              </span>
-              <div className="gov-user-info">
-                <span className="gov-user-name">{user.name}</span>
-                <span className="gov-user-role">{user.role_label || 'Intel Analyst'}</span>
-              </div>
-              <ChevronDown size={14} className="gov-user-chevron" />
-            </button>
-
-            {userMenuOpen && (
-              <div className="gov-user-dropdown" role="menu">
-                <div className="gov-user-dropdown-header">
-                  <div className="gov-user-dropdown-name">{user.name}</div>
-                  <div className="gov-user-dropdown-meta">
-                    {user.role_label} · {user.unit}
-                  </div>
-                  <div className="gov-user-dropdown-id">{user.username}</div>
+          {user ? (
+            <div className="gov-user-profile-wrap" ref={userMenuRef}>
+              <button
+                className="gov-user-profile-btn"
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                aria-expanded={userMenuOpen}
+                aria-label="User menu"
+              >
+                <span className="gov-user-avatar" style={{ background: '#073b3a' }}>
+                  {initials}
+                </span>
+                <div className="gov-user-info">
+                  <span className="gov-user-name">{user.name}</span>
+                  <span className="gov-user-role">{user.role_label || 'Officer'}</span>
                 </div>
-                <div className="gov-user-dropdown-divider" />
-                <button
-                  className="gov-user-dropdown-item"
-                  onClick={() => {
-                    setUserMenuOpen(false)
-                    navigate('/roles')
-                  }}
-                >
-                  <UserCheck size={16} />
-                  <span>Switch Role / भूमिका का चयन</span>
-                </button>
-                <button className="gov-user-dropdown-item gov-dropdown-danger" onClick={handleSignOut}>
-                  <LogOut size={16} />
-                  <span>{build === 'demo' ? 'Switch Persona / साइन आउट' : 'Sign Out / बाहर निकलें'}</span>
-                </button>
-              </div>
-            )}
-          </div>
+                <ChevronDown size={14} className="gov-user-chevron" />
+              </button>
 
-          {/* SIH Prototype disclaimer badge */}
-          <div className="gov-header-proto-pill" title="SIH 2026 Prototype | For Demonstration Only">
-            <span className="gov-header-proto-label">SIH 2026 Prototype</span>
-            <span className="gov-header-proto-sub">For Demonstration Only</span>
-          </div>
+              {userMenuOpen && (
+                <div className="gov-user-dropdown" role="menu">
+                  <div className="gov-user-dropdown-header">
+                    <div className="gov-user-dropdown-name">{user.name}</div>
+                    <div className="gov-user-dropdown-meta">
+                      {user.role_label} · {user.unit}
+                    </div>
+                    <div className="gov-user-dropdown-id">{user.username}</div>
+                  </div>
+                  <div className="gov-user-dropdown-divider" />
+                  <button
+                    className="gov-user-dropdown-item"
+                    onClick={() => {
+                      setUserMenuOpen(false)
+                      navigate('/roles')
+                    }}
+                  >
+                    <UserCheck size={16} />
+                    <span>Switch Role / भूमिका का चयन</span>
+                  </button>
+                  <button className="gov-user-dropdown-item gov-dropdown-danger" onClick={handleSignOut}>
+                    <LogOut size={16} />
+                    <span>Sign Out / बाहर निकलें</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className="gov-header-icon-btn"
+              style={{ width: 'auto', height: 'auto', minWidth: 'max-content', padding: '8px 14px', fontSize: 13, fontWeight: 600, textDecoration: 'none', color: '#0b2545', background: '#e2e8f0', borderRadius: '6px', whiteSpace: 'nowrap', flexShrink: 0 }}
+            >
+              Sign In / लॉगिन
+            </Link>
+          )}
         </div>
       </header>
 
@@ -367,7 +369,12 @@ export default function Shell({ children }: { children?: ReactNode }) {
                   </div>
                 </NavLink>
 
-                <NavLink to="/roles" className="gov-navlink active">
+                <NavLink
+                  to="/roles"
+                  className={`gov-navlink ${
+                    location.pathname === '/roles' || location.pathname === '/select-role' ? 'active' : ''
+                  }`}
+                >
                   <UserCheck size={18} aria-hidden />
                   <div className="gov-nav-text">
                     <span className="gov-nav-en">Select Role</span>
@@ -386,7 +393,7 @@ export default function Shell({ children }: { children?: ReactNode }) {
                 <button
                   className="gov-navlink"
                   style={{ width: '100%', background: 'transparent', border: 0, textAlign: 'left', cursor: 'pointer' }}
-                  onClick={() => alert('PRAMANA System Settings: Demo build running v1.0.0')}
+                  onClick={() => alert('PRAMANA Investigation Review System v1.0.0')}
                 >
                   <Settings size={18} aria-hidden />
                   <div className="gov-nav-text">
@@ -458,7 +465,7 @@ export default function Shell({ children }: { children?: ReactNode }) {
         </main>
       </div>
 
-      {/* 4. INSTITUTIONAL FOOTER WITH PROTOTYPE DISCLAIMER */}
+      {/* 4. INSTITUTIONAL FOOTER */}
       <footer className="gov-app-footer" role="contentinfo">
         <div className="gov-footer-left">
           <span className="gov-footer-brand">PRAMANA (प्रमाण)</span>
@@ -467,9 +474,7 @@ export default function Shell({ children }: { children?: ReactNode }) {
         </div>
         <div className="gov-footer-right">
           <span className="gov-footer-disclaimer">
-            <strong>SIH 2026 Prototype | For Demonstration Only</strong>
-            <span className="gov-footer-sep">·</span>
-            <span>Independent student prototype · Not an official Government of India website</span>
+            <span>Official Cybercrime & Financial Fraud Investigation Review Framework</span>
           </span>
         </div>
       </footer>

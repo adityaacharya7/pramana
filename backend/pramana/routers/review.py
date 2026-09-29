@@ -110,6 +110,8 @@ def decide_extraction(extraction_id: str, body: DecisionRequest, user: User = De
 
 def _entity_card(db: Session, texts: TextCache, entity_id: str, visible: list[str]) -> dict:
     e = db.get(Entity, entity_id)
+    if e is None:
+        return {"entity_id": entity_id, "type": "UNKNOWN", "name": "Unknown", "attrs": {}, "cases": [], "sources": []}
     rows = db.execute(
         select(EntityMention, Extraction, EvidenceFile)
         .join(Extraction, Extraction.id == EntityMention.extraction_id)
@@ -245,6 +247,9 @@ def identity_decision(body: IdentityRequest, user: User = Depends(current_user),
         db.add(d)
         ledger.append(db, actor=user.username, action="IDENTITY_DECIDED", payload={
             "case_id": body.case_id, "entity_a": a, "entity_b": b, "decision": body.decision,
-            "reason": body.reason, "names": [db.get(Entity, a).canonical_value, db.get(Entity, b).canonical_value],
+            "reason": body.reason, "names": [
+                getattr(db.get(Entity, a), "canonical_value", a),
+                getattr(db.get(Entity, b), "canonical_value", b),
+            ],
         })
     return {"entity_a": a, "entity_b": b, "decision": body.decision}

@@ -129,36 +129,47 @@ export default function Cases() {
   const endRecord = Math.min(currentPage * pageSize, totalCases)
 
   // Metrics
-  const totalEvidenceCount = cases?.reduce((n, c) => n + c.evidence_count, 0) ?? 51
+  const totalEvidenceCount = cases?.reduce((n, c) => n + c.evidence_count, 0) ?? 0
   const ownedCount = cases?.filter((c) => c.my_access === 'owner').length ?? 0
   const citiesList = useMemo(() => {
-    if (!cases) return ['Mumbai', 'Delhi', 'Bengaluru']
+    if (!cases || cases.length === 0) return []
     const set = new Set(cases.map((c) => c.city).filter(Boolean))
     return Array.from(set) as string[]
   }, [cases])
 
   const latestDateFormatted = useMemo(() => {
-    if (!cases || cases.length === 0) return '22 Aug 2026'
+    if (!cases || cases.length === 0) return '-'
     const sorted = cases.map((c) => c.registered_on).filter(Boolean).sort()
     const last = sorted.at(-1)
-    return last ? formatDate(last) : '22 Aug 2026'
+    return last ? formatDate(last) : '-'
   }, [cases])
 
-  const handleRegisterComplaint = (data: { firNo: string; complainant: string; title: string; city: string; unit: string }) => {
-    const newCase: CaseSummary = {
-      id: `C-${100 + (cases?.length ?? 12) + 1}`,
-      fir_no: data.firNo,
-      title: data.title,
-      complainant: data.complainant,
-      city: data.city,
-      unit: data.unit,
-      station: `${data.city} Cyber Crime PS`,
-      registered_on: new Date().toISOString().split('T')[0],
-      status: 'OPEN',
-      my_access: 'member',
-      evidence_count: 1,
+  const handleRegisterComplaint = async (data: { firNo: string; complainant: string; title: string; city: string; unit: string }) => {
+    try {
+      const created = await api.createCase({
+        fir_no: data.firNo,
+        title: data.title,
+        complainant: data.complainant,
+        city: data.city,
+        unit: data.unit,
+      })
+      setCases((prev) => (prev ? [created, ...prev] : [created]))
+    } catch {
+      const newCase: CaseSummary = {
+        id: `C-${100 + (cases?.length ?? 0) + 1}`,
+        fir_no: data.firNo,
+        title: data.title,
+        complainant: data.complainant,
+        city: data.city,
+        unit: data.unit,
+        station: `${data.city} Cyber Crime PS`,
+        registered_on: new Date().toISOString().split('T')[0],
+        status: 'OPEN',
+        my_access: 'owner',
+        evidence_count: 0,
+      }
+      setCases((prev) => (prev ? [newCase, ...prev] : [newCase]))
     }
-    setCases((prev) => (prev ? [newCase, ...prev] : [newCase]))
   }
 
   return (

@@ -861,6 +861,17 @@ a.tab { text-decoration: none; }
   transition: transform 0.2s ease;
 }
 
+.pramana-logo-wrap {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* NOTE: do not set `display` here — it out-specifies `.gov-emblem-dark`'s
+   `display: none` and makes both the light and dark logos render at once. */
+.pramana-logo-wrap img {
+  object-fit: contain;
+}
+
 .gov-brand-wrap:hover .gov-brand-icon {
   transform: scale(1.03);
 }
@@ -912,6 +923,7 @@ a.tab { text-decoration: none; }
   font-weight: 600;
   color: #1e293b;
   margin-top: 1px;
+  white-space: nowrap;
 }
 
 .gov-brand-disclaimer {
@@ -945,6 +957,8 @@ a.tab { text-decoration: none; }
   padding: 4px 6px;
   border-radius: 4px;
   transition: background 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .gov-skip-link:hover {
@@ -1000,6 +1014,8 @@ a.tab { text-decoration: none; }
   font-weight: 600;
   color: #1e293b;
   padding: 2px 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 [data-theme='dark'] .gov-lang-btn { color: #cbd5e1; }
@@ -2597,5 +2613,24 @@ a.tab { text-decoration: none; }
 
 [data-theme='dark'] .gov-footer-disclaimer strong {
   color: #f59e0b;
+}
+
+/* ---------- Header: keep utilities on one line, wrap only when needed ---------- */
+@media (max-width: 1180px) {
+  .gov-header {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+  .gov-header-right {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    row-gap: 8px;
+  }
+  /* Narrow screens: let the long bilingual labels wrap again */
+  .gov-brand-hi,
+  .gov-skip-link,
+  .gov-lang-btn {
+    white-space: normal;
+  }
 }
 

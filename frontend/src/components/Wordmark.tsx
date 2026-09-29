@@ -10,13 +10,27 @@ export function Seal({ size = 28 }: { size?: number }) {
 }
 
 export default function Wordmark({ large = false, sub = false }: { large?: boolean; sub?: boolean }) {
+  const h = large ? 36 : 24
   return (
-    <span className={large ? 'wordmark wordmark-lg' : 'wordmark'}>
-      <Seal size={large ? 44 : 28} />
-      <span className="wordmark-text">
-        <span className="wordmark-name">PRAMANA</span>
-        {sub && <span className="wordmark-sub">प्रमाण · Investigation review</span>}
-      </span>
+    <span className={large ? 'wordmark wordmark-lg' : 'wordmark'} style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+      <img
+        src="/pramana-logo-transparent.png"
+        alt="PRAMANA"
+        className="gov-emblem-light"
+        style={{ height: h, width: 'auto', objectFit: 'contain' }}
+      />
+      <img
+        src="/pramana-logo-dark.png"
+        alt="PRAMANA"
+        className="gov-emblem-dark"
+        style={{ height: h, width: 'auto', objectFit: 'contain' }}
+      />
+      {sub && (
+        <span className="wordmark-text">
+          <span className="wordmark-sub">प्रमाण · Investigation review</span>
+        </span>
+      )}
     </span>
   )
 }
+

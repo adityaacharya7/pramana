@@ -88,7 +88,7 @@ def upload_evidence(
 def list_evidence(case_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
     case = require_case(db, user, case_id, "evidence.read")
     rows = db.execute(
-        select(EvidenceFile, User).join(User, User.id == EvidenceFile.uploaded_by)
+        select(EvidenceFile, User).outerjoin(User, User.id == EvidenceFile.uploaded_by)
         .where(EvidenceFile.case_id == case.id).order_by(EvidenceFile.uploaded_at)
     ).all()
     return [evidence_out(ev, u) for ev, u in rows]

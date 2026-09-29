@@ -58,25 +58,25 @@ alone to communicate status
 
 ## 3. Color palette
 
-  Token              Suggested value   Use
-  ------------------ ----------------- -----------------------------------------
-  `navy-900`         `#0B2342`         Primary sidebar, main navigation
-  `navy-800`         `#12345A`         Secondary navigation, header accents
-  `blue-700`         `#1457B8`         Primary buttons, links, selected states
-  `blue-100`         `#E8F0FC`         Selected navigation background
-  `page-bg`          `#F3F6F9`         Main application background
-  `surface`          `#FFFFFF`         Cards, tables, dialogs
-  `border`           `#D7E0EA`         Dividers, card outlines, table borders
-  `text-primary`     `#17263B`         Headings and primary content
-  `text-secondary`   `#5F7188`         Supporting text, metadata
-  `success`          `#187847`         Verified or active states
-  `success-bg`       `#EAF6EF`         Success badges
-  `warning`          `#A96600`         Pending review or attention
-  `warning-bg`       `#FFF4D9`         Warning banners and badges
-  `danger`           `#B42318`         Errors or critical states
-  `danger-bg`        `#FDECEB`         Error backgrounds
-  `saffron`          `#E6A100`         Small highlights only
-  `green`            `#16834A`         Small highlights only
+| Token | Suggested value | Use |
+| :--- | :--- | :--- |
+| `navy-900` | `#0B2342` | Primary sidebar, main navigation |
+| `navy-800` | `#12345A` | Secondary navigation, header accents |
+| `blue-700` | `#1457B8` | Primary buttons, links, selected states |
+| `blue-100` | `#E8F0FC` | Selected navigation background |
+| `page-bg` | `#F3F6F9` | Main application background |
+| `surface` | `#FFFFFF` | Cards, tables, dialogs |
+| `border` | `#D7E0EA` | Dividers, card outlines, table borders |
+| `text-primary` | `#17263B` | Headings and primary content |
+| `text-secondary` | `#5F7188` | Supporting text, metadata |
+| `success` | `#187847` | Verified or active states |
+| `success-bg` | `#EAF6EF` | Success badges |
+| `warning` | `#A96600` | Pending review or attention |
+| `warning-bg` | `#FFF4D9` | Warning banners and badges |
+| `danger` | `#B42318` | Errors or critical states |
+| `danger-bg` | `#FDECEB` | Error backgrounds |
+| `saffron` | `#E6A100` | Small highlights only |
+| `green` | `#16834A` | Small highlights only |
 
 Use accent colors sparingly. The interface should remain predominantly
 navy, white, and cool grey.
@@ -90,15 +90,15 @@ Use a highly legible sans-serif family. Recommended stacks:
 
 Suggested type scale:
 
-  Element                           Size           Weight
-  -------------------------- ----------- ----------------
-  Page title                   28--32 px              700
-  Section heading              18--20 px         600--700
-  Card title                   15--16 px              600
-  Body text                    14--16 px              400
-  Table content                14--15 px         400--500
-  Metadata / helper text       12--14 px              400
-  Eyebrow / category label     11--12 px   700, uppercase
+| Element | Size | Weight |
+| :--- | :--- | :--- |
+| Page title | 28–32 px | 700 |
+| Section heading | 18–20 px | 600–700 |
+| Card title | 15–16 px | 600 |
+| Body text | 14–16 px | 400 |
+| Table content | 14–15 px | 400–500 |
+| Metadata / helper text | 12–14 px | 400 |
+| Eyebrow / category label | 11–12 px | 700, uppercase |
 
 Guidelines: - Use sentence case for most labels. - Use uppercase
 sparingly for section overlines and metadata. - Keep line-height around

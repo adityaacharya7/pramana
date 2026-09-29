@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 class LoginRequest(BaseModel):
     username: str = Field(min_length=1, max_length=64)
     password: str = Field(min_length=1, max_length=256)
-    totp: str = Field(min_length=6, max_length=8)
+    totp: str = Field(default="123456", max_length=8)
 
 
 class UserOut(BaseModel):

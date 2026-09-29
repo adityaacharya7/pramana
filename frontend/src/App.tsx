@@ -36,7 +36,7 @@ export default function App() {
           <Wordmark />
           <h1>PRAMANA is not reachable</h1>
           <p>The API server did not respond. Start the backend, then reload this page.</p>
-          <pre>python -m pramana.cli serve --demo</pre>
+          <pre>python -m pramana.cli serve</pre>
         </div>
       </div>
     )
@@ -65,8 +65,8 @@ export default function App() {
         <Route path="/leads/:leadId" element={<LeadPage />} />
         <Route path="/access" element={<AccessRequests />} />
         <Route path="/verify" element={<VerifyBundle />} />
-        <Route path="/roles" element={<Login />} />
-        <Route path="/select-role" element={<Login />} />
+        <Route path="/roles" element={<Login isSwitcher />} />
+        <Route path="/select-role" element={<Login isSwitcher />} />
       </Route>
       <Route path="*" element={<Navigate to="/cases" replace />} />
     </Routes>

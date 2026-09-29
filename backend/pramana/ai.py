@@ -1,10 +1,9 @@
-"""PRAMANA AI Layer — Deep Forensic Intelligence & Legal Copilot powered by Google Gemini.
+"""PRAMANA AI Layer — investigative assistant and drafting aid powered by Google Gemini.
 
-Deeply integrated with:
-- Full ground truth syndicate intelligence (Tri-City Digital Arrest network across Mumbai, Delhi, Bengaluru).
-- Complete 30-case repository (C-101 through C-130).
-- Live database entities, transactions, and rule-based leads (SHARED-ID, CONVERGENCE, LAYERING, CASHOUT, FACILITATOR).
-- Indian criminal justice statutory framework (BNS 2023, BNSS 2023, IT Act 2000).
+The model is given only the case records the caller passes in, which the
+router has already limited to the signed-in user's authorised cases. It is
+never given the synthetic dataset's answer key: its suggestions must come
+from the evidence, like every other PRAMANA finding, and the officer decides.
 """
 from __future__ import annotations
 
@@ -41,10 +40,6 @@ GEMINI_MODELS = [
 
 BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
 
-# Cache for knowledge files
-_CACHED_GROUND_TRUTH: dict[str, Any] | None = None
-_CACHED_CASES: list[dict[str, Any]] | None = None
-
 
 def get_gemini_api_key() -> str:
     key = os.environ.get("GEMINI_API_KEY", "").strip()
@@ -54,38 +49,6 @@ def get_gemini_api_key() -> str:
             "Please configure GEMINI_API_KEY in your .env file or Vercel project environment variables."
         )
     return key
-
-
-def load_ground_truth() -> dict[str, Any]:
-    global _CACHED_GROUND_TRUTH
-    if _CACHED_GROUND_TRUTH is None:
-        gt_path = REPO_ROOT / "dataset" / "tri_city_v1" / "ground_truth.json"
-        if gt_path.exists():
-            try:
-                with open(gt_path, "r", encoding="utf-8") as f:
-                    _CACHED_GROUND_TRUTH = json.load(f)
-            except Exception as e:
-                logger.error("Failed to load ground truth: %s", e)
-                _CACHED_GROUND_TRUTH = {}
-        else:
-            _CACHED_GROUND_TRUTH = {}
-    return _CACHED_GROUND_TRUTH
-
-
-def load_all_cases() -> list[dict[str, Any]]:
-    global _CACHED_CASES
-    if _CACHED_CASES is None:
-        cases_path = REPO_ROOT / "dataset" / "tri_city_v1" / "cases.json"
-        if cases_path.exists():
-            try:
-                with open(cases_path, "r", encoding="utf-8") as f:
-                    _CACHED_CASES = json.load(f)
-            except Exception as e:
-                logger.error("Failed to load cases catalog: %s", e)
-                _CACHED_CASES = []
-        else:
-            _CACHED_CASES = []
-    return _CACHED_CASES
 
 
 def call_gemini(
@@ -113,10 +76,12 @@ def call_gemini(
         payload["generationConfig"]["responseMimeType"] = "application/json"
 
     for model in GEMINI_MODELS:
-        url = f"{BASE_URL}/models/{model}:generateContent?key={api_key}"
+        # The key goes in a header, not the URL, so it cannot surface in
+        # logged or returned error messages that quote the request URL.
+        url = f"{BASE_URL}/models/{model}:generateContent"
         try:
             with httpx.Client(timeout=timeout_sec) as client:
-                res = client.post(url, json=payload)
+                res = client.post(url, json=payload, headers={"x-goog-api-key": api_key})
                 if res.status_code == 200:
                     data = res.json()
                     candidates = data.get("candidates", [])
@@ -130,7 +95,7 @@ def call_gemini(
                     last_error = RuntimeError(f"Model {model} returned status {res.status_code}")
                     continue
                 else:
-                    res.raise_for_status()
+                    raise RuntimeError(f"Model {model} returned status {res.status_code}")
         except Exception as exc:
             logger.warning("Gemini model %s failed: %s", model, exc)
             last_error = exc
@@ -141,69 +106,23 @@ def call_gemini(
     raise RuntimeError("No Gemini model responded.")
 
 
-def get_omniscient_system_prompt() -> str:
-    gt = load_ground_truth()
-    cases = load_all_cases()
-    tri_city = gt.get("tri_city", {})
+SYSTEM_PROMPT = """You are UPAKARAKA (उपकारक), the investigative assistant for PRAMANA (प्रमाण), a decision-support tool for cyber crime investigators.
 
-    # Build concise directory of active cases
-    cases_dir = [
-        f"• {c['id']}: FIR {c.get('fir_no', 'N/A')} ({c.get('city', 'N/A')}, {c.get('station', 'N/A')}) — Complainant: {c.get('complainant', 'N/A')} — Title: {c.get('title', 'N/A')} (Reg: {c.get('registered_on', 'N/A')})"
-        for c in cases[:15]
-    ]
+In Sanskrit, Upakaraka signifies the faithful aide to the investigator in establishing proof (Pramana).
 
-    return f"""You are UPAKARAKA (उपकारक), the elite Cyber Crime Investigation & Forensic Intelligence Specialist and Investigative Assistant for PRAMANA (प्रमाण).
+GROUNDING RULES:
+1. Use only the case records supplied in the prompt. They are the only cases this officer is authorised to see.
+2. Never invent names, account numbers, amounts, IFSCs, phone numbers, dates or case details. If something is not in the records, say it is not known and suggest how the officer could establish it.
+3. Do not speculate about cases, people or accounts that are not in the supplied records.
+4. You propose; the officer decides. Present findings as leads to verify, citing the record they come from.
 
-In Sanskrit, Upakaraka signifies the faithful benefactor, assisting ally, and forensic aide to the investigator in establishing conclusive proof (Pramana).
-
-OPERATIONAL CONTEXT & OMNISCIENT KNOWLEDGE BASE:
-Current Year: 2026.
-You have direct, comprehensive access to the entire PRAMANA database, all 30 active cases (C-101 through C-130), ground truth syndicate intelligence, money trails, and audit ledgers.
-
-CORE SYNDICATE INTELLIGENCE (TRI-CITY DIGITAL ARREST NETWORK):
-Summary: {tri_city.get('summary', 'Three victims in three cities, three mule accounts opened at one branch by one official, converging on a partnership-firm current account that converts funds to USDT via a P2P seller.')}
-
-KEY SYNDICATE NODES & ENTITIES:
-• Primary Caller P-77: Mobile 6577461070, IMEI 352818503028069. Shared caller impersonating law enforcement across Case C-101 (Mumbai) and Case C-102 (Delhi).
-• Secondary Caller P-81: Mobile 8314573287. Caller in Case C-103 (Bengaluru).
-• Victims:
-  - C-101 (Mumbai): Shobha Anant Kulkarni (Account 6740454760436, Phone 6573879984). Loss: ₹78,000 sent to M1.
-  - C-102 (Delhi): Harish Chandra Bhatia (Account 87502954453, Phone 6263092463). Loss: ₹58,000 sent to M2.
-  - C-103 (Bengaluru): Kavitha Ramesh (Account 4007140334880). Loss: ₹39,000 sent to M3.
-  - Total Victim Loss: ₹1,75,000.
-• Mule Accounts:
-  - M1: 6048957397316 (Holder: Sandeep Kumar Verma, IFSC: XSSB0000017).
-  - M2: 4555065800338 (Holder: Rahul Sharma, IFSC: XSSB0000017, Phone: 7111397769).
-  - M3: 99759036248 (Holder: Pooja Rawat, IFSC: XSSB0000017).
-• Corrupt Bank Insider / Facilitator:
-  - Vivek Chauhan (E-45), Bank Official at Sahyadri Synthetic Bank, Ranipur Main Road Branch (Branch B-17, IFSC XSSB0000017).
-  - E-45 processed and approved all three mule accounts (M1, M2, M3) at the same branch.
-• Money Trail Layering & Convergence HUB:
-  - HUB Account: 563551302754 held by Shree Balaji Traders (IFSC: XNDB0000022), current account opened 2026-07-01.
-  - Funds from M1 (₹77,000), M2 (₹60,000), and M3 (₹38,500) converged into HUB between 10:31 and 11:14 on 2026-08-12 (within 43 minutes).
-• Cashout & Crypto Exit:
-  - P2P Crypto Seller: Aakash Jain (Account 536338398255). Received ₹1,60,000 from HUB at 12:10 on 2026-08-12.
-  - Crypto Destination: TRON TRC20 Wallet W-1: TjS29d87cA7VQpY3JfgvxJdeEKzGHnnRGg (converted fiat into USDT).
-• Mixed Funds & Ordinary Payment Isolation:
-  - In M2 (Rahul Sharma), ₹50,000 August salary existed prior to victim credit. ₹2,000 was spent at Om Sai Kirana Stores (omsaikirana23@fakepay). PRAMANA's FIFO/LIFO attribution isolates this ordinary payment from the criminal trail.
-• Investigation Rules & Detection:
-  - SHARED-ID-v1: Links C-101 and C-102 via caller P-77; links C-101, C-102, C-103 via HUB.
-  - CONVERGENCE-v1: Flags rapid pooling from M1, M2, M3 into HUB.
-  - LAYERING-v1: Flags rapid pass-through chain V -> M -> HUB -> P2P.
-  - CASHOUT-v1: Pinpoints P2P seller Aakash Jain -> TRON Wallet W-1.
-  - FACILITATOR-v1: Flags branch B-17 and official Vivek Chauhan (E-45).
-  - MO-MATCH-v1: Matches fake CBI/FedEx courier digital arrest script across cities.
-
-SAMPLE OF OTHER CASES IN REPOSITORY:
-{chr(10).join(cases_dir)}
-
-CRITICAL FORMATTING & BEHAVIORAL DIRECTIVES:
+FORMATTING & BEHAVIOURAL DIRECTIVES:
 1. NEVER output simulated memo preambles (DO NOT write "**PRAMANA AI // ...**", "**TO:**", "**FROM:**", "**SUBJECT:**", or "**DATE:**").
-2. Start directly with the factual investigative findings and operational answers.
-3. Be specific, decisive, and authoritative: cite exact names, accounts, amounts, IFSCs, phone numbers, and statutory sections.
-4. Always guide the officer toward actionable statutory legal steps under:
-   - Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS): Sec 94 (Summons to produce bank/telecom records), Sec 106 (Immediate account debit freeze).
-   - Bharatiya Nyaya Sanhita, 2023 (BNS): Sec 318(4) (Cheating), Sec 319(2) (Personation), Sec 316 (Breach of trust).
+2. Start directly with the findings and operational answers.
+3. Be specific and cite the exact identifiers present in the records.
+4. Where relevant, point the officer to statutory steps under:
+   - Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS): Sec 94 (Summons to produce bank/telecom records), Sec 106 (Seizure / account debit freeze).
+   - Bharatiya Nyaya Sanhita, 2023 (BNS): Sec 318(4) (Cheating), Sec 319(2) (Cheating by personation), Sec 316 (Criminal breach of trust).
    - IT Act 2000: Sec 66C, 66D, 69A.
 """
 
@@ -247,7 +166,7 @@ INVESTIGATOR QUERY:
 
 Provide a direct, fact-checked, deeply integrated forensic intelligence response.
 """
-    system_instruction = get_omniscient_system_prompt()
+    system_instruction = SYSTEM_PROMPT
     raw_res = call_gemini(prompt, system_instruction=system_instruction, temperature=0.25)
     
     # Clean up any leftover memo headers if Gemini generated them
@@ -259,57 +178,27 @@ Provide a direct, fact-checked, deeply integrated forensic intelligence response
 
 
 def analyze_case_deep(case_info: dict[str, Any]) -> dict[str, Any]:
-    """Perform deep forensic intelligence analysis, using ground truth for known cases."""
-    cid = case_info.get("id", "C-101")
-    gt = load_ground_truth()
-    tri_city = gt.get("tri_city", {})
-
+    """Structured analysis of one case, from that case's own records only."""
     prompt = f"""
-Perform a deep forensic intelligence analysis of the following cyber fraud case:
-Case ID: {cid}
-FIR No: {case_info.get('fir_no', '0412/2026')}
-Title: {case_info.get('title', 'Digital arrest impersonation complaint')}
-Complainant: {case_info.get('complainant', 'Shobha Anant Kulkarni')}
-City: {case_info.get('city', 'Mumbai')}
-Station: {case_info.get('station', 'Cyber Police Station (West Region), Mumbai')}
-Known Syndicate Context: {json.dumps(tri_city if cid in ('C-101', 'C-102', 'C-103') else case_info)}
+Analyse the following cyber fraud case using ONLY the records below.
 
-Generate a JSON object with EXACTLY the following structure:
+CASE RECORDS (JSON):
+{json.dumps(case_info, default=str, ensure_ascii=False)}
+
+Return a JSON object with EXACTLY these keys:
 {{
-  "typology": "Digital Arrest & Courier Impersonation Scam",
-  "risk_score": 92,
-  "confidence": "HIGH",
-  "summary": "Detailed 2-3 sentence executive forensic summary identifying the victims, callers, mule network, and cashout route.",
-  "modus_operandi": [
-    "Step 1: First point of contact and deception mechanism",
-    "Step 2: Authority impersonation (fake CBI/Customs/Police) and intimidation",
-    "Step 3: Coerced fund transfer to mule accounts",
-    "Step 4: Rapid consolidation into HUB and conversion to cryptocurrency via P2P seller"
-  ],
-  "statutory_sections": [
-    {{"section": "Section 318(4) BNS", "desc": "Cheating with knowledge that wrongful loss may ensue"}},
-    {{"section": "Section 319(2) BNS", "desc": "Cheating by personation using telecommunication device"}},
-    {{"section": "Section 316 BNS", "desc": "Criminal breach of trust"}},
-    {{"section": "Section 66D IT Act", "desc": "Punishment for cheating by personation by using computer resource"}},
-    {{"section": "Section 94 BNSS", "desc": "Summons to produce bank statements, KYC, and telecom IPDR/CDR"}},
-    {{"section": "Section 106 BNSS", "desc": "Immediate police power of seizure and bank account debit freeze"}}
-  ],
-  "syndicate_hierarchy": [
-    {{"role": "Syndicate Caller / Impersonator", "entity": "P-77 (6577461070)", "details": "Conducted coercive digital arrest call (IMEI: 352818503028069)"}},
-    {{"role": "Corrupt Bank Insider", "entity": "Vivek Chauhan (E-45)", "details": "Sahyadri Synthetic Bank (Branch B-17) official who opened all mule accounts"}},
-    {{"role": "Layer-1 Collector Mule", "entity": "Sandeep Kumar Verma (M1)", "details": "Acc 6048957397316 received ₹78,000 from victim"}},
-    {{"role": "Central Convergence HUB", "entity": "Shree Balaji Traders (HUB)", "details": "Current Acc 563551302754 consolidated ₹1,75,500 across 3 cities"}},
-    {{"role": "P2P Crypto Cashout Operative", "entity": "Aakash Jain (P2P)", "details": "Acc 536338398255 converted ₹1,60,000 to USDT on TRON Wallet W-1"}}
-  ],
-  "immediate_actions": [
-    "Issue immediate Section 106 BNSS debit freeze notice to Axis Bank and Bank Nodal Officers for HUB (Shree Balaji Traders) and P2P (Aakash Jain).",
-    "Issue Section 94 BNSS requisition to Sahyadri Synthetic Bank (Ranipur Branch B-17) for internal audit and KYC records of official Vivek Chauhan (E-45).",
-    "Subpoena P2P crypto exchange hosting Aakash Jain and freeze USDT on TRON Wallet TjS29d87cA7VQpY3JfgvxJdeEKzGHnnRGg.",
-    "Issue telecom summons for CDR/IPDR/Tower dump of phone 6577461070 and block handset IMEI 352818503028069 on CEIR."
-  ]
+  "typology": "short name of the fraud typology the records indicate",
+  "risk_score": <integer 0-100>,
+  "confidence": "HIGH" | "MEDIUM" | "LOW" (LOW when the records are thin),
+  "summary": "2-3 sentence summary citing only what the records show",
+  "modus_operandi": ["step-by-step method as evidenced by the records"],
+  "statutory_sections": [{{"section": "e.g. Section 318(4) BNS", "desc": "why it applies"}}],
+  "syndicate_hierarchy": [{{"role": "role in the scheme", "entity": "name/identifier exactly as in the records", "details": "which record supports this"}}],
+  "immediate_actions": ["concrete next investigative or statutory step"]
 }}
+Use empty lists where the records do not support an entry. Do not invent entities, amounts or identifiers.
 """
-    raw_json = call_gemini(prompt, system_instruction=get_omniscient_system_prompt(), response_json=True, temperature=0.15)
+    raw_json = call_gemini(prompt, system_instruction=SYSTEM_PROMPT, response_json=True, temperature=0.15)
     try:
         return json.loads(raw_json)
     except Exception:
@@ -331,33 +220,33 @@ Notice Type: {notice_type}
 (Options: 'SECTION_106_BNSS' [Direct Police Debit Freeze Directive], 'SECTION_94_BNSS' [Summons to Produce Records/KYC/IPDR], 'SECTION_69A_IT_ACT' [Takedown Notice])
 
 CASE DETAILS:
-Police Station: {case_data.get('station', 'Cyber Crime Police Station (West Region), Mumbai')}
-District / City: {case_data.get('city', 'Mumbai')}
-FIR Number: {case_data.get('fir_no', '0412/2026')}
-Case Registered Date: {case_data.get('registered_on', '2026-08-13')}
+Police Station: {case_data.get('station') or '[not provided]'}
+District / City: {case_data.get('city') or '[not provided]'}
+FIR Number: {case_data.get('fir_no') or '[not provided]'}
+Case Registered Date: {case_data.get('registered_on') or '[not provided]'}
 Applicable Penal Sections: Sections 318(4), 319(2), 316 BNS, 2023 r/w Sections 66C, 66D IT Act, 2000
-Complainant / Victim: {case_data.get('complainant', 'Shobha Anant Kulkarni')}
+Complainant / Victim: {case_data.get('complainant') or '[not provided]'}
 
 INVESTIGATING OFFICER:
-Name: {officer.get('name', 'Insp. Aparna Deshmukh')}
-Designation: {officer.get('role_label', 'Inspector of Police / Investigating Officer')}
-Unit: {officer.get('unit', 'MUM-CYB')}
+Name: {officer.get('name') or '[not provided]'}
+Designation: {officer.get('role_label') or '[not provided]'}
+Unit: {officer.get('unit') or '[not provided]'}
 
 TARGET RECIPIENT ENTITY:
-Entity / Bank Name: {target_entity.get('name', 'Nodal Officer, Axis Bank Ltd.')}
-Account Number / Identifier: {target_entity.get('account_no', '563551302754')}
-Branch / IFSC: {target_entity.get('ifsc', 'XNDB0000022')}
-Beneficiary Name: {target_entity.get('holder', 'Shree Balaji Traders')}
-Transaction / UTR Reference: {target_entity.get('utr', 'UTR Ref: 621759975506')}
-Disputed Amount to Freeze: ₹{target_entity.get('amount', '77,000')}
+Entity / Bank Name: {target_entity.get('name') or '[not provided]'}
+Account Number / Identifier: {target_entity.get('account_no') or '[not provided]'}
+Branch / IFSC: {target_entity.get('ifsc') or '[not provided]'}
+Transaction / UTR Reference: {target_entity.get('utr') or '[not provided]'}
+Disputed Amount to Freeze: ₹{target_entity.get('amount') or '[not provided]'}
 
 REQUIREMENTS:
 1. Departmental header: State Cyber Police Crime Branch.
-2. Formal notice reference: NOTICE/CYB/2026/FIR-{case_data.get('fir_no', '0412')}/LEGAL-01.
+2. Formal notice reference: NOTICE/CYB/2026/FIR-{case_data.get('fir_no') or 'NA'}/LEGAL-01.
 3. Explicit statutory exercise of power under Section 106 BNSS (or Section 94 BNSS).
 4. Direct orders: Immediate debit-freeze on the specified account, preserve CCTV/IPDR/audit logs, furnish certified Banker's Books Evidence Act certificate within 24 hours.
 5. Penalty warning: Highlight Section 223 BNS for non-compliance.
 6. Signature block for IO with official seal designation.
+7. Where a detail above is "[not provided]", leave a clearly marked blank for the officer to fill in; do not invent it.
 """
-    raw_notice = call_gemini(prompt, system_instruction=get_omniscient_system_prompt(), temperature=0.15)
+    raw_notice = call_gemini(prompt, system_instruction=SYSTEM_PROMPT, temperature=0.15)
     return raw_notice.strip()

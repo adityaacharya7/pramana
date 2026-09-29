@@ -154,21 +154,8 @@ export default function Cases() {
         unit: data.unit,
       })
       setCases((prev) => (prev ? [created, ...prev] : [created]))
-    } catch {
-      const newCase: CaseSummary = {
-        id: `C-${100 + (cases?.length ?? 0) + 1}`,
-        fir_no: data.firNo,
-        title: data.title,
-        complainant: data.complainant,
-        city: data.city,
-        unit: data.unit,
-        station: `${data.city} Cyber Crime PS`,
-        registered_on: new Date().toISOString().split('T')[0],
-        status: 'OPEN',
-        my_access: 'owner',
-        evidence_count: 0,
-      }
-      setCases((prev) => (prev ? [newCase, ...prev] : [newCase]))
+    } catch (err) {
+      alert(`Could not register the complaint: ${err instanceof Error ? err.message : 'Unknown error'}`)
     }
   }
 

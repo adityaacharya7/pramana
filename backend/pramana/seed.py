@@ -12,7 +12,7 @@ from .config import Settings
 from .db import utcnow_iso
 from .models import Case, CaseMember, Deployment, EvidenceFile, Extraction, User
 from .routers.evidence import seal
-from .security import hash_password, new_totp_secret
+from .security import new_totp_secret
 
 SYSTEM = "system:demo-seed"
 
@@ -39,9 +39,10 @@ def seed_demo(db: Session, settings: Settings, preload_all: bool = True) -> dict
         })
         by_name: dict[str, User] = {}
         for u in users:
-            # Set default password hash for officers to enable proper login
+            # Demo users sign in through the role switcher only: no password.
+            # A TOTP secret is still set so the same code paths hold.
             user = User(username=u["username"], name=u["name"], role=u["role"], unit=u["unit"],
-                        password_hash=hash_password("Pramana@2026"), totp_secret=new_totp_secret(), created_at=now)
+                        password_hash=None, totp_secret=new_totp_secret(), created_at=now)
             db.add(user)
             by_name[u["username"]] = user
         db.flush()

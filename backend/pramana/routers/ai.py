@@ -1,4 +1,9 @@
-"""PRAMANA AI Router — Deeply integrated Gemini AI Endpoints."""
+"""PRAMANA AI Router — Gemini endpoints.
+
+The model only ever sees records the signed-in user could open themselves:
+every case is checked against the permission matrix, and leads or entities
+are drawn only from those cases. Nothing about out-of-scope cases, and no
+dataset answer key, is put into a prompt."""
 from __future__ import annotations
 
 import json
@@ -15,13 +20,12 @@ from ..ai import (
     analyze_case_deep,
     chat_case_intelligence,
     draft_statutory_notice,
-    load_all_cases,
-    load_ground_truth,
     GEMINI_MODELS,
 )
 from ..deps import current_user, get_db
 from ..db import utcnow_iso
-from ..models import Case, Entity, EvidenceFile, Lead, Transaction, User
+from ..models import Case, Entity, EntityMention, EvidenceFile, Lead, User
+from ..permissions import ROLE_LABELS, Role, require_case, visible_case_ids
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 
@@ -56,7 +60,7 @@ def ai_status(user: User = Depends(current_user)):
         "has_api_key": has_key,
         "active_models": GEMINI_MODELS,
         "capabilities": [
-            "Omniscient Case & Syndicate Cross-Referencing",
+            "Case Cross-Referencing (within your authorised cases)",
             "Modus Operandi & Typology Deep Profiling",
             "Statutory Legal Notice Drafting (Sec 94 & 106 BNSS)",
             "Automated Multi-Tier Money Trail Attribution",
@@ -65,85 +69,86 @@ def ai_status(user: User = Depends(current_user)):
     }
 
 
+def _case_summary(db: Session, case: Case) -> dict[str, Any]:
+    ev_count = db.scalar(
+        select(func.count()).select_from(EvidenceFile).where(EvidenceFile.case_id == case.id)
+    ) or 0
+    return {
+        "id": case.id,
+        "fir_no": case.fir_no,
+        "title": case.title,
+        "complainant": case.complainant,
+        "city": case.city,
+        "station": case.station,
+        "unit": case.unit,
+        "status": case.status,
+        "registered_on": case.registered_on,
+        "evidence_count": ev_count,
+    }
+
+
+def _visible_leads(db: Session, user: User, case_id: str) -> list[Lead]:
+    """Active leads on this case whose every case the user may read (a lead
+    spanning cases needs all of them, as in the leads router)."""
+    readable = set(visible_case_ids(db, user, "lead.read"))
+    leads = db.scalars(select(Lead).where(Lead.active.is_(True)).order_by(Lead.created_at)).all()
+    return [l for l in leads if case_id in (l.case_ids or []) and set(l.case_ids or []) <= readable]
+
+
+def _case_entities(db: Session, case_id: str, limit: int = 40) -> list[Entity]:
+    """Confirmed entities mentioned in this case's evidence."""
+    return list(db.scalars(
+        select(Entity)
+        .where(Entity.id.in_(select(EntityMention.entity_id).where(EntityMention.case_id == case_id)))
+        .order_by(Entity.type, Entity.canonical_value)
+        .limit(limit)
+    ))
+
+
 @router.post("/chat")
 def ai_chat(
     body: ChatRequest,
     user: User = Depends(current_user),
     db: Session = Depends(get_db),
 ):
-    """Interactive AI Copilot chat grounded in all cases, persons, and money trails."""
-    # 1. Identify all target cases (from active case_id or mentioned in message)
-    target_case_ids = set()
+    """Copilot chat grounded in the cases this user is authorised to view."""
+    # The screen's case must be in scope (refused and logged otherwise).
+    primary: Case | None = None
     if body.case_id:
-        target_case_ids.add(body.case_id.upper())
-    
-    found_in_msg = re.findall(r"C-\d{3}", body.message.upper())
-    target_case_ids.update(found_in_msg)
+        primary = require_case(db, user, body.case_id.upper(), "case.view")
 
-    # 2. Extract database context for target cases
-    db_extra_parts = []
-    
-    if target_case_ids:
-        cases_in_db = db.scalars(
-            select(Case).where(Case.id.in_(list(target_case_ids)))
-        ).all()
-        
-        for c in cases_in_db:
-            ev_count = db.scalar(
-                select(func.count()).select_from(EvidenceFile).where(EvidenceFile.case_id == c.id)
-            ) or 0
-            
+    # Cases named in the message are used only if the user could open them;
+    # others are dropped silently so the reply reveals nothing about them.
+    visible = set(visible_case_ids(db, user, "case.view"))
+    target_ids = {c for c in re.findall(r"C-\d{3}", body.message.upper()) if c in visible}
+    if primary is not None:
+        target_ids.add(primary.id)
+
+    db_extra_parts: list[str] = []
+    for cid in sorted(target_ids):
+        c = db.get(Case, cid)
+        if c is None:
+            continue
+        summ = _case_summary(db, c)
+        db_extra_parts.append(
+            f"DATABASE CASE RECORD: [{c.id}] FIR {c.fir_no} | Station: {c.station} | "
+            f"Complainant: {c.complainant} | City: {c.city} | Reg Date: {c.registered_on} | "
+            f"Evidence Files Sealed: {summ['evidence_count']} | Status: {c.status}"
+        )
+        for l in _visible_leads(db, user, c.id):
             db_extra_parts.append(
-                f"DATABASE CASE RECORD: [{c.id}] FIR {c.fir_no} | Station: {c.station} | "
-                f"Complainant: {c.complainant} | City: {c.city} | Reg Date: {c.registered_on} | "
-                f"Evidence Files Sealed: {ev_count} | Status: {c.status}"
+                f"  -> LEAD [{l.rule_id}]: {l.title} (Status: {l.status}) | {json.dumps(l.detail, default=str)[:800]}"
             )
-            
-            # Fetch relevant leads linked to this case
-            leads = db.scalars(
-                select(Lead).limit(10)
-            ).all()
-            for l in leads:
-                if c.id in (l.case_ids or []):
-                    db_extra_parts.append(
-                        f"  -> ACTIVE INVESTIGATION LEAD [{l.rule_id}]: {l.title} (Status: {l.status}) | {l.detail}"
-                    )
+        ents = _case_entities(db, c.id, limit=25)
+        if ents:
+            db_extra_parts.append(
+                "  -> CONFIRMED ENTITIES: " + "; ".join(f"{e.type}: {e.canonical_value}" for e in ents)
+            )
 
-    # 3. If query mentions key persons, search entities
-    keywords = ["vivek", "chauhan", "balaji", "aakash", "jain", "sandeep", "rahul", "pooja", "shobha", "harish", "kavitha", "p-77", "6577461070"]
-    lower_msg = body.message.lower()
-    matched_kw = [k for k in keywords if k in lower_msg]
-    if matched_kw:
-        matched_entities = db.scalars(
-            select(Entity).limit(15)
-        ).all()
-        for e in matched_entities:
-            for kw in matched_kw:
-                if kw in e.canonical_value.lower():
-                    db_extra_parts.append(f"DATABASE ENTITY MATCH: {e.type} -> '{e.canonical_value}'")
-
-    # 4. Contextual summary of primary case if active
-    case_context = None
-    primary_id = body.case_id or (list(target_case_ids)[0] if target_case_ids else None)
-    if primary_id:
-        p_case = db.get(Case, primary_id)
-        if p_case:
-            ev_cnt = db.scalar(
-                select(func.count()).select_from(EvidenceFile).where(EvidenceFile.case_id == p_case.id)
-            ) or 0
-            case_context = {
-                "id": p_case.id,
-                "fir_no": p_case.fir_no,
-                "title": p_case.title,
-                "complainant": p_case.complainant,
-                "city": p_case.city,
-                "station": p_case.station,
-                "unit": p_case.unit,
-                "status": p_case.status,
-                "registered_on": p_case.registered_on,
-                "evidence_count": ev_cnt,
-            }
-
+    if primary is None and target_ids:
+        primary = db.get(Case, sorted(target_ids)[0])
+    case_context = _case_summary(db, primary) if primary is not None else None
+    primary_id = primary.id if primary is not None else None
     db_extra_context = "\n".join(db_extra_parts) if db_extra_parts else None
 
     try:
@@ -159,10 +164,10 @@ def ai_chat(
             detail=f"AI service error: {exc}",
         )
 
-    # Record AI query into cryptographic audit ledger
     with ledger.transaction(db):
         ledger.append(db, actor=user.username, action="AI_COPILOT_QUERY", payload={
             "case_id": primary_id,
+            "context_case_ids": sorted(target_ids),
             "query_preview": body.message[:120],
             "officer": user.name,
         })
@@ -181,31 +186,21 @@ def ai_case_analysis(
     user: User = Depends(current_user),
     db: Session = Depends(get_db),
 ):
-    """Deep forensic intelligence analysis of a specific case."""
-    case = db.get(Case, body.case_id)
-    if not case:
-        raise HTTPException(status_code=404, detail="Case not found")
+    """AI-assisted analysis of one case, from that case's own records."""
+    case = require_case(db, user, body.case_id.upper(), "analysis.run")
 
     ev_files = db.scalars(
         select(EvidenceFile).where(EvidenceFile.case_id == case.id)
     ).all()
 
-    evidence_info = [
-        {"filename": ev.filename, "kind": ev.kind, "bytes": ev.size_bytes} for ev in ev_files
-    ]
-
-    entities = db.scalars(select(Entity).limit(20)).all()
-    entity_info = [{"type": e.type, "name": e.canonical_value} for e in entities]
-
     case_info = {
-        "id": case.id,
-        "fir_no": case.fir_no,
-        "title": case.title,
-        "complainant": case.complainant,
-        "city": case.city,
-        "station": case.station,
-        "evidence": evidence_info,
-        "entities": entity_info,
+        **_case_summary(db, case),
+        "evidence": [{"filename": ev.filename, "kind": ev.kind, "bytes": ev.size_bytes} for ev in ev_files],
+        "entities": [{"type": e.type, "name": e.canonical_value} for e in _case_entities(db, case.id)],
+        "leads": [
+            {"rule": l.rule_id, "title": l.title, "status": l.status, "detail": l.detail}
+            for l in _visible_leads(db, user, case.id)
+        ],
     }
 
     try:
@@ -236,30 +231,30 @@ def ai_draft_notice(
     user: User = Depends(current_user),
     db: Session = Depends(get_db),
 ):
-    """Draft court-ready statutory notices (Section 94 or 106 BNSS, 69A IT Act)."""
-    case = db.get(Case, body.case_id)
-    if not case:
-        raise HTTPException(status_code=404, detail="Case not found")
+    """Draft a statutory notice (Section 94 or 106 BNSS, 69A IT Act) for the officer to review."""
+    case = require_case(db, user, body.case_id.upper(), "draft.create")
 
     case_data = {
         "station": case.station or f"{case.city or case.unit} Cyber Crime PS",
-        "city": case.city or "Mumbai",
+        "city": case.city,
         "fir_no": case.fir_no,
         "registered_on": case.registered_on,
         "complainant": case.complainant,
     }
 
+    # Only what the officer supplied; missing details stay blank in the draft
+    # rather than being filled with invented figures.
     target_entity = {
         "name": body.entity_name,
         "account_no": body.entity_identifier,
-        "amount": body.amount or "78,000",
-        "utr": body.utr or "IMPS/UTR Ref: 620746847120",
-        "ifsc": body.ifsc or "XSSB0000017",
+        "amount": body.amount,
+        "utr": body.utr,
+        "ifsc": body.ifsc,
     }
 
     officer_data = {
         "name": user.name,
-        "role_label": user.role_label,
+        "role_label": ROLE_LABELS[Role(user.role)],
         "unit": user.unit,
     }
 

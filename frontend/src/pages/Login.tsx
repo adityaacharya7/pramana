@@ -243,11 +243,21 @@ function RoleSwitcher({ onDone, signIn }: { onDone: () => void; signIn: SignIn }
 }
 
 function PasswordForm({ onDone, signIn }: { onDone: () => void; signIn: SignIn }) {
-  const [username, setUsername] = useState('io.mumbai')
-  const [password, setPassword] = useState('Pramana@2026')
-  const [totp, setTotp] = useState('123456')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [totp, setTotp] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Only the isolated demo build serves /demo/*; a standard build answers 404
+  // and the quick-select panel stays hidden.
+  const [isDemoBuild, setIsDemoBuild] = useState(false)
+
+  useEffect(() => {
+    api.demoUsers().then(
+      () => setIsDemoBuild(true),
+      () => setIsDemoBuild(false)
+    )
+  }, [])
 
   const OFFICER_PRESETS = [
     { label: 'Insp. Deshmukh', role: 'IO (Mumbai)', user: 'io.mumbai' },
@@ -257,11 +267,17 @@ function PasswordForm({ onDone, signIn }: { onDone: () => void; signIn: SignIn }
     { label: 'Admin', role: 'IT Cell HQ', user: 'admin' },
   ]
 
-  const selectPreset = (u: string) => {
+  async function selectPreset(u: string) {
     setUsername(u)
-    setPassword('Pramana@2026')
-    setTotp('123456')
+    setBusy(true)
     setError(null)
+    try {
+      await signIn(await api.demoSession(u))
+      onDone()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not start the demo session.')
+      setBusy(false)
+    }
   }
 
   async function submit(e: FormEvent) {
@@ -269,18 +285,9 @@ function PasswordForm({ onDone, signIn }: { onDone: () => void; signIn: SignIn }
     setBusy(true)
     setError(null)
     try {
-      // Authenticate with official login credentials
       await signIn(await api.login(username.trim(), password, totp.trim()))
       onDone()
     } catch (err) {
-      // Fallback to session if backend running standard seed without custom password hash
-      try {
-        await signIn(await api.demoSession(username.trim()))
-        onDone()
-        return
-      } catch {
-        // Show true api error
-      }
       setError(err instanceof ApiError ? err.message : 'Sign-in failed. Please verify credentials.')
       setBusy(false)
     }
@@ -304,10 +311,10 @@ function PasswordForm({ onDone, signIn }: { onDone: () => void; signIn: SignIn }
           </p>
         </div>
 
-        {/* Quick Officer Selection Pills */}
-        <div style={{ background: 'var(--subtle-bg, #f8fafc)', padding: '10px 12px', borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 4 }}>
+        {/* Quick Officer Selection Pills (demo build only) */}
+        {isDemoBuild && <div style={{ background: 'var(--subtle-bg, #f8fafc)', padding: '10px 12px', borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 4 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 6 }}>
-            Quick Officer Select / अधिकारी चयन
+            Demo build: quick officer select / अधिकारी चयन
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {OFFICER_PRESETS.map((p) => (
@@ -315,6 +322,7 @@ function PasswordForm({ onDone, signIn }: { onDone: () => void; signIn: SignIn }
                 key={p.user}
                 type="button"
                 onClick={() => selectPreset(p.user)}
+                disabled={busy}
                 style={{
                   fontSize: 11.5,
                   padding: '4px 8px',
@@ -331,7 +339,7 @@ function PasswordForm({ onDone, signIn }: { onDone: () => void; signIn: SignIn }
               </button>
             ))}
           </div>
-        </div>
+        </div>}
 
         <label>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>

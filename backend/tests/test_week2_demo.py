@@ -122,11 +122,14 @@ def test_live_upload_confirm_and_merge_flow(demo):
     the beneficiary against the bank's KYC record."""
     headers = as_user(demo, "io.mumbai")
     path = DATASET / "cases" / "C-102" / "complaint_C-102_victim.txt"
-    demo.post("/cases/C-102/evidence", headers=headers, files={"file": (path.name, path.read_bytes())},
-              data={"kind": "complaint"})
+    uploaded = demo.post("/cases/C-102/evidence", headers=headers, files={"file": (path.name, path.read_bytes())},
+                         data={"kind": "complaint"})
+    assert uploaded.status_code == 201
     assert demo.post("/cases/C-102/extract", headers=headers).json()["extractions_created"] > 10
     queue = demo.get("/cases/C-102/review-queue", headers=headers).json()
-    f = next(x for x in queue["files"] if x["filename"] == path.name)
+    # The demo seed preloads a copy of this complaint (already reviewed), so
+    # pick the file this test uploaded, not the first one with that name.
+    f = next(x for x in queue["files"] if x["evidence_id"] == uploaded.json()["id"])
     first = f["pending_groups"][0]
     demo.post(f"/extractions/{first['sample_id']}/decision", headers=headers,
               json={"decision": "confirm", "scope": "file", "extractors": ["regex-v1", "pattern-v1"]})

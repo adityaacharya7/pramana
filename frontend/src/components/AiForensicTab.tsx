@@ -55,10 +55,10 @@ export default function AiForensicTab({ kase }: { kase: CaseDetail }) {
       const res = await api.ai.draftNotice({
         case_id: kase.id,
         notice_type: type,
-        entity_name: 'Axis Bank Ltd. (Mule Account Nodal Officer)',
-        entity_identifier: '918020045582910',
-        amount: '₹4,85,000',
-        utr: 'UTR/IMPS Ref: 624519800214',
+        // No invented figures: the officer fills in the account, amount and
+        // UTR from the verified records before issuing the notice.
+        entity_name: 'Nodal Officer, [bank to be filled by officer]',
+        entity_identifier: '[account number to be filled by officer]',
       })
       setNoticeResult(res.notice_text)
     } catch (e) {

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from ..deps import current_user, get_db
 from ..models import Case, CaseMember, EvidenceFile, User
-from ..permissions import require_case, visible_case_ids
+from ..permissions import require_action, require_case, visible_case_ids
 from ..schemas import CaseDetailOut, CaseOut, MemberOut
 
 router = APIRouter(tags=["cases"])
@@ -51,31 +51,35 @@ class CreateCaseIn(BaseModel):
     fir_no: str = Field(min_length=1, max_length=32)
     title: str = Field(min_length=1, max_length=256)
     complainant: str = Field(min_length=1, max_length=128)
-    city: str | None = None
-    unit: str = Field(min_length=1, max_length=32)
-    station: str | None = None
+    city: str | None = Field(default=None, max_length=64)
+    # Accepted for older clients but ignored: a case is always registered in
+    # the officer's own unit.
+    unit: str | None = Field(default=None, max_length=32)
+    station: str | None = Field(default=None, max_length=128)
 
 
 @router.post("/cases", response_model=CaseDetailOut, status_code=201)
 def create_case(body: CreateCaseIn, user: User = Depends(current_user), db: Session = Depends(get_db)):
     from .. import ledger
     from ..db import utcnow_iso
+    require_action(db, user, "case.create")
     now = utcnow_iso()
-    count = db.scalar(select(func.count()).select_from(Case)) or 0
-    case_id = f"C-{100 + count + 1}"
-    case = Case(
-        id=case_id,
-        fir_no=body.fir_no,
-        unit=body.unit,
-        city=body.city,
-        status="OPEN",
-        title=body.title,
-        station=body.station or f"{body.city or body.unit} Cyber Crime PS",
-        registered_on=now.split("T")[0],
-        complainant=body.complainant,
-        created_at=now,
-    )
     with ledger.transaction(db):
+        # Next number after the highest existing C-NNN id, allocated under the
+        # ledger lock so two registrations cannot take the same id.
+        numbers = [int(i[2:]) for i in db.scalars(select(Case.id)) if i.startswith("C-") and i[2:].isdigit()]
+        case = Case(
+            id=f"C-{max(numbers, default=100) + 1}",
+            fir_no=body.fir_no,
+            unit=user.unit,
+            city=body.city,
+            status="OPEN",
+            title=body.title,
+            station=body.station or f"{body.city or user.unit} Cyber Crime PS",
+            registered_on=now.split("T")[0],
+            complainant=body.complainant,
+            created_at=now,
+        )
         db.add(case)
         db.flush()
         db.add(CaseMember(case_id=case.id, user_id=user.id, access="owner", granted_at=now, granted_by=user.username))

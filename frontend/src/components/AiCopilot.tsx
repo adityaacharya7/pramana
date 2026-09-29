@@ -45,10 +45,10 @@ export default function AiCopilot() {
 
   // Statutory Notice Draft State
   const [noticeType, setNoticeType] = useState('SECTION_106_BNSS')
-  const [noticeBank, setNoticeBank] = useState('Axis Bank Ltd.')
-  const [noticeAccount, setNoticeAccount] = useState('918020045582910')
-  const [noticeAmount, setNoticeAmount] = useState('1,75,000')
-  const [noticeUtr, setNoticeUtr] = useState('IMPS/UTR Ref: 624519800214')
+  const [noticeBank, setNoticeBank] = useState('')
+  const [noticeAccount, setNoticeAccount] = useState('')
+  const [noticeAmount, setNoticeAmount] = useState('')
+  const [noticeUtr, setNoticeUtr] = useState('')
   const [noticeDraft, setNoticeDraft] = useState<string | null>(null)
   const [noticeDrafting, setNoticeDrafting] = useState(false)
 
@@ -120,6 +120,10 @@ export default function AiCopilot() {
       alert('Please open a case (e.g. C-101) to draft a statutory notice with case references.')
       return
     }
+    if (!noticeBank.trim() || !noticeAccount.trim()) {
+      alert('Enter the recipient bank and the account number from the verified records.')
+      return
+    }
     setNoticeDrafting(true)
     try {
       const res = await api.ai.draftNotice({
@@ -127,8 +131,8 @@ export default function AiCopilot() {
         notice_type: noticeType,
         entity_name: noticeBank,
         entity_identifier: noticeAccount,
-        amount: noticeAmount,
-        utr: noticeUtr,
+        amount: noticeAmount.trim() || undefined,
+        utr: noticeUtr.trim() || undefined,
       })
       setNoticeDraft(res.notice_text)
     } catch (e) {

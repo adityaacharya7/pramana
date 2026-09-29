@@ -43,6 +43,8 @@ EVERYONE = {r: ANY for r in Role}
 
 MATRIX: dict[str, dict[Role, str]] = {
     "case.view": {Role.IO: MEMBER, Role.ANALYST: MEMBER, Role.SUPERVISOR: UNIT},
+    # Registering a complaint: always in the officer's own unit (enforced in the router).
+    "case.create": {Role.IO: ANY, Role.SUPERVISOR: ANY},
     "evidence.upload": {Role.IO: MEMBER},
     "evidence.read": {Role.IO: MEMBER, Role.ANALYST: MEMBER, Role.SUPERVISOR: UNIT},
     "evidence.verify": {Role.IO: MEMBER, Role.ANALYST: MEMBER, Role.SUPERVISOR: UNIT},

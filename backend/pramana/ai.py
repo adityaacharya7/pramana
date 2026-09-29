@@ -19,7 +19,18 @@ import httpx
 
 logger = logging.getLogger("pramana.ai")
 
-DEFAULT_API_KEY = "AIzaSyC7KDKjO1den8fD6Ik0iB8_keNdMPyHOho"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+# Load local .env if present
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    if (REPO_ROOT / ".env").exists():
+        load_dotenv(REPO_ROOT / ".env")
+except Exception:
+    pass
+
 GEMINI_MODELS = [
     "gemini-3.5-flash-lite",
     "gemini-3.5-flash",
@@ -29,7 +40,6 @@ GEMINI_MODELS = [
 ]
 
 BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
-REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # Cache for knowledge files
 _CACHED_GROUND_TRUTH: dict[str, Any] | None = None
@@ -37,7 +47,13 @@ _CACHED_CASES: list[dict[str, Any]] | None = None
 
 
 def get_gemini_api_key() -> str:
-    return os.environ.get("GEMINI_API_KEY") or DEFAULT_API_KEY
+    key = os.environ.get("GEMINI_API_KEY", "").strip()
+    if not key:
+        raise RuntimeError(
+            "GEMINI_API_KEY environment variable is not configured. "
+            "Please configure GEMINI_API_KEY in your .env file or Vercel project environment variables."
+        )
+    return key
 
 
 def load_ground_truth() -> dict[str, Any]:

@@ -5,6 +5,11 @@ backend/.venv/
 __pycache__/
 *.pyc
 .pytest_cache/
+# environment variables & secrets (never commit)
+.env
+.env.*
+!.env.example
+*.env
 
 # frontend
 frontend/node_modules/

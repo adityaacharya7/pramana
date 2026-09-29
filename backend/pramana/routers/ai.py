@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -48,9 +49,11 @@ class DraftNoticeRequest(BaseModel):
 @router.get("/status")
 def ai_status(user: User = Depends(current_user)):
     """Health check for AI capabilities and active models."""
+    has_key = bool(os.environ.get("GEMINI_API_KEY", "").strip())
     return {
-        "status": "online",
+        "status": "online" if has_key else "unconfigured",
         "provider": "Google Gemini",
+        "has_api_key": has_key,
         "active_models": GEMINI_MODELS,
         "capabilities": [
             "Omniscient Case & Syndicate Cross-Referencing",

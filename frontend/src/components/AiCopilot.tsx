@@ -36,7 +36,7 @@ export default function AiCopilot() {
       id: 'welcome',
       role: 'assistant',
       content:
-        '**PRAMANA AI Forensic Copilot (दिव्य दृष्टि)** is active.\n\nI provide real-time statutory intelligence, Modus Operandi breakdown, money trail attribution analysis, and court-ready requisition drafting under the **Bharatiya Nagarik Suraksha Sanhita (BNSS)** and **IT Act, 2000**.\n\nHow may I assist your investigation today?',
+        '**UPAKARAKA (उपकारक)** is active.\n\nAs your investigative ally, I provide real-time statutory intelligence, Modus Operandi breakdown, multi-layer money trail attribution, and court-ready requisition drafting under the **Bharatiya Nagarik Suraksha Sanhita (BNSS)** and **IT Act, 2000**.\n\nHow may I assist your investigation today, Officer?',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ])
@@ -105,7 +105,7 @@ export default function AiCopilot() {
       const errMsg: Message = {
         id: `err-${Date.now()}`,
         role: 'assistant',
-        content: `Error connecting to PRAMANA AI service: ${err instanceof Error ? err.message : 'Unknown error'}. Please verify connection.`,
+        content: `Error connecting to Upakaraka (उपकारक) service: ${err instanceof Error ? err.message : 'Unknown error'}. Please verify connection.`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         error: true,
       }
@@ -152,15 +152,15 @@ export default function AiCopilot() {
         <button
           onClick={() => setIsOpen(true)}
           className="pramana-ai-fab"
-          aria-label="Open PRAMANA AI Copilot"
-          title="Open PRAMANA AI Copilot (Powered by Google Gemini)"
+          aria-label="Open UPAKARAKA Assistant"
+          title="Open UPAKARAKA (उपकारक) — PRAMANA Forensic Assistant"
         >
           <div className="pramana-ai-fab-icon-box">
             <Sparkles size={20} className="pramana-ai-sparkle-spin" />
           </div>
           <div className="pramana-ai-fab-label">
-            <span className="pramana-ai-fab-title">PRAMANA AI</span>
-            <span className="pramana-ai-fab-sub">Forensic Copilot</span>
+            <span className="pramana-ai-fab-title">UPAKARAKA</span>
+            <span className="pramana-ai-fab-sub">उपकारक · Assistant</span>
           </div>
           {activeCaseId && (
             <span className="pramana-ai-fab-case-badge">{activeCaseId}</span>
@@ -179,11 +179,11 @@ export default function AiCopilot() {
               </div>
               <div>
                 <div className="pramana-ai-title-row">
-                  <span className="pramana-ai-title">PRAMANA AI Copilot</span>
+                  <span className="pramana-ai-title">UPAKARAKA (उपकारक)</span>
                   <span className="pramana-ai-tag">Gemini 3.5</span>
                 </div>
                 <div className="pramana-ai-sub">
-                  दिव्य दृष्टि · Forensic Intelligence & Legal Requisitions
+                  प्रमाण उपकारक · Forensic Assistant &amp; Requisitions
                   {activeCaseId && <strong style={{ color: '#F59E0B', marginLeft: 6 }}>[Active: {activeCaseId}]</strong>}
                 </div>
               </div>
@@ -233,7 +233,7 @@ export default function AiCopilot() {
                       <span className="pramana-ai-sender">
                         {m.role === 'assistant' ? (
                           <>
-                            <Shield size={13} style={{ color: '#0047ba' }} /> PRAMANA AI
+                            <Shield size={13} style={{ color: '#0047ba' }} /> UPAKARAKA (उपकारक)
                           </>
                         ) : (
                           'Investigating Officer'
@@ -301,8 +301,8 @@ export default function AiCopilot() {
                   className="pramana-ai-input"
                   placeholder={
                     activeCaseId
-                      ? `Ask PRAMANA AI about Case ${activeCaseId} (e.g. suspects, trail, law)...`
-                      : 'Ask PRAMANA AI about cyber fraud, trail analysis, BNSS notices...'
+                      ? `Ask Upakaraka about Case ${activeCaseId} (e.g. suspects, trail, law)...`
+                      : 'Ask Upakaraka about cases, persons, money trail, BNSS notices...'
                   }
                   value={input}
                   onChange={(e) => setInput(e.target.value)}

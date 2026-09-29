@@ -83,7 +83,7 @@ export default function AiForensicTab({ kase }: { kase: CaseDetail }) {
           </div>
           <div>
             <h2 style={{ margin: 0, fontSize: 18, color: 'var(--text, #0b2545)', display: 'flex', alignItems: 'center', gap: 8 }}>
-              PRAMANA AI Forensic Intelligence
+              UPAKARAKA (उपकारक) Forensic Intelligence
               <span style={{ fontSize: 11, background: '#f59e0b', color: '#07192f', padding: '2px 8px', borderRadius: 4, fontWeight: 700 }}>
                 GEMINI 3.5
               </span>

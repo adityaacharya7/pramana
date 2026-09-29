@@ -9,7 +9,7 @@ export default function FormattedMarkdown({ content }: { content: string }) {
 
   // Clean out any accidental simulated memo preambles if present
   let clean = content
-    .replace(/^\*\*PRAMANA AI \/\/ [^\n]+\*\*\s*/i, '')
+    .replace(/^\*\*(?:PRAMANA AI|UPAKARAKA) \/\/ [^\n]+\*\*\s*/i, '')
     .replace(/^\*\*TO:\*\*[^\n]+\n/i, '')
     .replace(/^\*\*SUBJECT:\*\*[^\n]+\n/i, '')
     .replace(/^\*\*DATE:\*\*[^\n]+\n/i, '')

@@ -136,7 +136,9 @@ def get_omniscient_system_prompt() -> str:
         for c in cases[:15]
     ]
 
-    return f"""You are PRAMANA AI (प्रमाण एआई), the elite Cyber Crime Investigation & Forensic Intelligence Specialist for Indian Law Enforcement Agencies (State Police Cyber Cells, CID, CBI, and I4C).
+    return f"""You are UPAKARAKA (उपकारक), the elite Cyber Crime Investigation & Forensic Intelligence Specialist and Investigative Assistant for PRAMANA (प्रमाण).
+
+In Sanskrit, Upakaraka signifies the faithful benefactor, assisting ally, and forensic aide to the investigator in establishing conclusive proof (Pramana).
 
 OPERATIONAL CONTEXT & OMNISCIENT KNOWLEDGE BASE:
 Current Year: 2026.
@@ -214,7 +216,7 @@ Evidence Files: {case_context.get('evidence_count', 0)}
     history_str = ""
     if history:
         for turn in history[-6:]:
-            role = "Investigating Officer" if turn.get("role") in ("user", "human") else "PRAMANA AI"
+            role = "Investigating Officer" if turn.get("role") in ("user", "human") else "Upakaraka"
             history_str += f"{role}: {turn.get('content', '')}\n"
 
     prompt = f"""
@@ -233,7 +235,7 @@ Provide a direct, fact-checked, deeply integrated forensic intelligence response
     raw_res = call_gemini(prompt, system_instruction=system_instruction, temperature=0.25)
     
     # Clean up any leftover memo headers if Gemini generated them
-    clean_res = re.sub(r"^\*\*PRAMANA AI // [^\n]+\*\*\s*", "", raw_res, flags=re.IGNORECASE)
+    clean_res = re.sub(r"^\*\*(?:PRAMANA AI|UPAKARAKA) // [^\n]+\*\*\s*", "", raw_res, flags=re.IGNORECASE)
     clean_res = re.sub(r"^\*\*TO:\*\*[^\n]+\n", "", clean_res, flags=re.IGNORECASE)
     clean_res = re.sub(r"^\*\*SUBJECT:\*\*[^\n]+\n", "", clean_res, flags=re.IGNORECASE)
     clean_res = re.sub(r"^\*\*DATE:\*\*[^\n]+\n", "", clean_res, flags=re.IGNORECASE)

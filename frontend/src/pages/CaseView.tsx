@@ -186,7 +186,7 @@ function CaseView({ caseId, tab }: { caseId: string; tab: Tab }) {
           className={({ isActive }) => `tab${isActive ? ' tab-active' : ''}`}
           style={{ color: '#d97706', fontWeight: 700 }}
         >
-          <Sparkles size={15} aria-hidden /> AI Intelligence
+          <Sparkles size={15} aria-hidden /> Upakaraka (उपकारक)
         </NavLink>
       </nav>
 

@@ -29,7 +29,7 @@ const TAB_NAMES: Record<string, string> = {
   leads: 'Leads',
   trail: 'Money trail',
   crosscase: 'Cross-case',
-  ai: 'AI Forensic Intelligence',
+  ai: 'Upakaraka (उपकारक)',
 }
 
 function useFormattedClock() {

@@ -252,7 +252,11 @@ export default function AiCopilot() {
                     </div>
 
                     <div className="pramana-ai-bubble-content">
-                      <FormattedMarkdown content={m.content} />
+                      {m.role === 'user' ? (
+                        <div className="pramana-ai-user-text">{m.content}</div>
+                      ) : (
+                        <FormattedMarkdown content={m.content} />
+                      )}
                     </div>
                   </div>
                 ))}

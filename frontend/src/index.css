@@ -3125,8 +3125,22 @@ a.tab { text-decoration: none; }
 
 .pramana-ai-user .pramana-ai-bubble-content {
   background: #0047ba;
-  color: #ffffff;
+  color: #ffffff !important;
   border-top-right-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0, 71, 186, 0.25);
+}
+
+.pramana-ai-user-text {
+  color: #ffffff !important;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 13.5px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.pramana-ai-user .pramana-ai-bubble-content * {
+  color: #ffffff !important;
 }
 
 .pramana-ai-assistant .pramana-ai-bubble-content {
